@@ -1,0 +1,80 @@
+from __future__ import annotations
+
+import logging
+import sys
+
+from telegram.ext import Application, CallbackQueryHandler, CommandHandler, MessageHandler, filters
+
+from bot.config import ConfigError, DB_PATH, EXPORTS_DIR, MATRIX_PATH, ensure_data_dirs, load_config
+from bot.database import Database
+from bot.dialogue import DialogueManager
+from bot.grading import GradeEngine
+from bot.handlers import (
+    help_command,
+    reset_command,
+    result_command,
+    start_assessment_callback,
+    start_command,
+    status_command,
+    text_message_handler,
+)
+from bot.matrix import MatrixError, load_matrix
+from bot.openai_service import OpenAIService
+from bot.reporting import ReportBuilder
+
+
+def configure_logging() -> None:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+    )
+
+
+def build_application() -> Application:
+    ensure_data_dirs()
+    config = load_config()
+    matrix = load_matrix(MATRIX_PATH)
+
+    db = Database(DB_PATH)
+    db.init()
+
+    openai_service = OpenAIService(api_key=config.openai_api_key, model=config.openai_model)
+    dialogue = DialogueManager(matrix=matrix, openai_service=openai_service)
+    grader = GradeEngine(matrix=matrix, openai_service=openai_service)
+    reporter = ReportBuilder(exports_dir=EXPORTS_DIR)
+
+    app = Application.builder().token(config.telegram_bot_token).build()
+
+    app.bot_data["db"] = db
+    app.bot_data["dialogue"] = dialogue
+    app.bot_data["grader"] = grader
+    app.bot_data["reporter"] = reporter
+    app.bot_data["pending_probes"] = {}
+    app.bot_data["max_questions"] = config.max_questions
+    app.bot_data["confidence_threshold"] = config.confidence_threshold
+
+    app.add_handler(CommandHandler("start", start_command))
+    app.add_handler(CommandHandler("help", help_command))
+    app.add_handler(CommandHandler("reset", reset_command))
+    app.add_handler(CommandHandler("status", status_command))
+    app.add_handler(CommandHandler("result", result_command))
+    app.add_handler(CallbackQueryHandler(start_assessment_callback, pattern=r"^start_assessment$"))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, text_message_handler))
+
+    return app
+
+
+def main() -> None:
+    configure_logging()
+
+    try:
+        app = build_application()
+    except (ConfigError, MatrixError) as exc:
+        logging.error("Startup failed: %s", exc)
+        sys.exit(1)
+
+    app.run_polling(drop_pending_updates=True)
+
+
+if __name__ == "__main__":
+    main()

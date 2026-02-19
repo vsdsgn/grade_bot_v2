@@ -1,0 +1,1 @@
+"""Telegram assessment bot package."""

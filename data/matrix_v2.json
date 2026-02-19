@@ -1,0 +1,1595 @@
+{
+  "version": "2.0",
+  "levels": [
+    "Junior",
+    "Middle",
+    "Senior",
+    "Lead_IC",
+    "Head_M",
+    "ArtDirector_IC",
+    "DesignDirector_M"
+  ],
+  "dimensions": {
+    "scope_responsibility": {
+      "display_name": "Scope & Responsibility",
+      "levels": {
+        "Junior": {
+          "signals": [
+            "Owns clearly scoped tasks with close guidance; demonstrates scope ownership, autonomy, and accountability with concrete ownership.",
+            "Explains trade-offs and decisions in scope ownership, autonomy, and accountability with clear rationale."
+          ],
+          "anti_signals": [
+            "Avoids ownership outside immediate tickets",
+            "Escalates accountability instead of driving closure"
+          ],
+          "typical_examples": [
+            "Defined scope and delivery plan for a high-visibility product initiative at Junior scope.",
+            "Took ownership across discovery, execution, and launch follow-through at Junior complexity."
+          ]
+        },
+        "Middle": {
+          "signals": [
+            "Owns end-to-end flows in a product area; demonstrates scope ownership, autonomy, and accountability with concrete ownership.",
+            "Explains trade-offs and decisions in scope ownership, autonomy, and accountability with clear rationale."
+          ],
+          "anti_signals": [
+            "Avoids ownership outside immediate tickets",
+            "Escalates accountability instead of driving closure"
+          ],
+          "typical_examples": [
+            "Defined scope and delivery plan for a high-visibility product initiative at Middle scope.",
+            "Took ownership across discovery, execution, and launch follow-through at Middle complexity."
+          ]
+        },
+        "Senior": {
+          "signals": [
+            "Leads a strategic product domain with autonomy; demonstrates scope ownership, autonomy, and accountability with concrete ownership.",
+            "Explains trade-offs and decisions in scope ownership, autonomy, and accountability with clear rationale."
+          ],
+          "anti_signals": [
+            "Avoids ownership outside immediate tickets",
+            "Escalates accountability instead of driving closure"
+          ],
+          "typical_examples": [
+            "Defined scope and delivery plan for a high-visibility product initiative at Senior scope.",
+            "Took ownership across discovery, execution, and launch follow-through at Senior complexity."
+          ]
+        },
+        "Lead_IC": {
+          "signals": [
+            "Drives cross-team initiatives as a senior IC leader; demonstrates scope ownership, autonomy, and accountability with concrete ownership.",
+            "Explains trade-offs and decisions in scope ownership, autonomy, and accountability with clear rationale."
+          ],
+          "anti_signals": [
+            "Avoids ownership outside immediate tickets",
+            "Escalates accountability instead of driving closure"
+          ],
+          "typical_examples": [
+            "Defined scope and delivery plan for a high-visibility product initiative at Lead_IC scope.",
+            "Took ownership across discovery, execution, and launch follow-through at Lead_IC complexity."
+          ]
+        },
+        "Head_M": {
+          "signals": [
+            "Owns multi-team design outcomes and organization health; demonstrates scope ownership, autonomy, and accountability with concrete ownership.",
+            "Explains trade-offs and decisions in scope ownership, autonomy, and accountability with clear rationale."
+          ],
+          "anti_signals": [
+            "Avoids ownership outside immediate tickets",
+            "Escalates accountability instead of driving closure"
+          ],
+          "typical_examples": [
+            "Defined scope and delivery plan for a high-visibility product initiative at Head_M scope.",
+            "Took ownership across discovery, execution, and launch follow-through at Head_M complexity."
+          ]
+        },
+        "ArtDirector_IC": {
+          "signals": [
+            "Shapes product vision and brand-expression quality as IC; demonstrates scope ownership, autonomy, and accountability with concrete ownership.",
+            "Explains trade-offs and decisions in scope ownership, autonomy, and accountability with clear rationale."
+          ],
+          "anti_signals": [
+            "Avoids ownership outside immediate tickets",
+            "Escalates accountability instead of driving closure"
+          ],
+          "typical_examples": [
+            "Defined scope and delivery plan for a high-visibility product initiative at ArtDirector_IC scope.",
+            "Took ownership across discovery, execution, and launch follow-through at ArtDirector_IC complexity."
+          ]
+        },
+        "DesignDirector_M": {
+          "signals": [
+            "Sets org-level design direction across multiple functions; demonstrates scope ownership, autonomy, and accountability with concrete ownership.",
+            "Explains trade-offs and decisions in scope ownership, autonomy, and accountability with clear rationale."
+          ],
+          "anti_signals": [
+            "Avoids ownership outside immediate tickets",
+            "Escalates accountability instead of driving closure"
+          ],
+          "typical_examples": [
+            "Defined scope and delivery plan for a high-visibility product initiative at DesignDirector_M scope.",
+            "Took ownership across discovery, execution, and launch follow-through at DesignDirector_M complexity."
+          ]
+        }
+      }
+    },
+    "impact": {
+      "display_name": "Impact",
+      "levels": {
+        "Junior": {
+          "signals": [
+            "Improves local UX quality for a feature slice; demonstrates measurable product/business/user impact with concrete ownership.",
+            "Explains trade-offs and decisions in measurable product/business/user impact with clear rationale."
+          ],
+          "anti_signals": [
+            "Describes output only, cannot connect to outcomes",
+            "No validation plan or post-launch learning"
+          ],
+          "typical_examples": [
+            "Improved activation, retention, or conversion with measurable results at Junior scope.",
+            "Changed team direction based on post-launch evidence at Junior complexity."
+          ]
+        },
+        "Middle": {
+          "signals": [
+            "Ships improvements that move team metrics; demonstrates measurable product/business/user impact with concrete ownership.",
+            "Explains trade-offs and decisions in measurable product/business/user impact with clear rationale."
+          ],
+          "anti_signals": [
+            "Describes output only, cannot connect to outcomes",
+            "No validation plan or post-launch learning"
+          ],
+          "typical_examples": [
+            "Improved activation, retention, or conversion with measurable results at Middle scope.",
+            "Changed team direction based on post-launch evidence at Middle complexity."
+          ]
+        },
+        "Senior": {
+          "signals": [
+            "Delivers measurable business and user outcomes; demonstrates measurable product/business/user impact with concrete ownership.",
+            "Explains trade-offs and decisions in measurable product/business/user impact with clear rationale."
+          ],
+          "anti_signals": [
+            "Describes output only, cannot connect to outcomes",
+            "No validation plan or post-launch learning"
+          ],
+          "typical_examples": [
+            "Improved activation, retention, or conversion with measurable results at Senior scope.",
+            "Changed team direction based on post-launch evidence at Senior complexity."
+          ]
+        },
+        "Lead_IC": {
+          "signals": [
+            "Creates leverage through standards and critical bets; demonstrates measurable product/business/user impact with concrete ownership.",
+            "Explains trade-offs and decisions in measurable product/business/user impact with clear rationale."
+          ],
+          "anti_signals": [
+            "Describes output only, cannot connect to outcomes",
+            "No validation plan or post-launch learning"
+          ],
+          "typical_examples": [
+            "Improved activation, retention, or conversion with measurable results at Lead_IC scope.",
+            "Changed team direction based on post-launch evidence at Lead_IC complexity."
+          ]
+        },
+        "Head_M": {
+          "signals": [
+            "Compounds impact through team structure and talent; demonstrates measurable product/business/user impact with concrete ownership.",
+            "Explains trade-offs and decisions in measurable product/business/user impact with clear rationale."
+          ],
+          "anti_signals": [
+            "Describes output only, cannot connect to outcomes",
+            "No validation plan or post-launch learning"
+          ],
+          "typical_examples": [
+            "Improved activation, retention, or conversion with measurable results at Head_M scope.",
+            "Changed team direction based on post-launch evidence at Head_M complexity."
+          ]
+        },
+        "ArtDirector_IC": {
+          "signals": [
+            "Elevates narrative and differentiation at company level; demonstrates measurable product/business/user impact with concrete ownership.",
+            "Explains trade-offs and decisions in measurable product/business/user impact with clear rationale."
+          ],
+          "anti_signals": [
+            "Describes output only, cannot connect to outcomes",
+            "No validation plan or post-launch learning"
+          ],
+          "typical_examples": [
+            "Improved activation, retention, or conversion with measurable results at ArtDirector_IC scope.",
+            "Changed team direction based on post-launch evidence at ArtDirector_IC complexity."
+          ]
+        },
+        "DesignDirector_M": {
+          "signals": [
+            "Drives durable company outcomes through design leadership; demonstrates measurable product/business/user impact with concrete ownership.",
+            "Explains trade-offs and decisions in measurable product/business/user impact with clear rationale."
+          ],
+          "anti_signals": [
+            "Describes output only, cannot connect to outcomes",
+            "No validation plan or post-launch learning"
+          ],
+          "typical_examples": [
+            "Improved activation, retention, or conversion with measurable results at DesignDirector_M scope.",
+            "Changed team direction based on post-launch evidence at DesignDirector_M complexity."
+          ]
+        }
+      }
+    },
+    "uncertainty_tolerance": {
+      "display_name": "Decision-making Under Uncertainty",
+      "levels": {
+        "Junior": {
+          "signals": [
+            "Needs structure when requirements are ambiguous; demonstrates decision quality under ambiguity and incomplete data with concrete ownership.",
+            "Explains trade-offs and decisions in decision quality under ambiguity and incomplete data with clear rationale."
+          ],
+          "anti_signals": [
+            "Waits for perfect requirements before acting",
+            "Makes decisions without stating assumptions or risks"
+          ],
+          "typical_examples": [
+            "Made a key product call with incomplete data and documented assumptions at Junior scope.",
+            "De-risked ambiguous opportunity through rapid learning experiments at Junior complexity."
+          ]
+        },
+        "Middle": {
+          "signals": [
+            "Can frame trade-offs and move with partial data; demonstrates decision quality under ambiguity and incomplete data with concrete ownership.",
+            "Explains trade-offs and decisions in decision quality under ambiguity and incomplete data with clear rationale."
+          ],
+          "anti_signals": [
+            "Waits for perfect requirements before acting",
+            "Makes decisions without stating assumptions or risks"
+          ],
+          "typical_examples": [
+            "Made a key product call with incomplete data and documented assumptions at Middle scope.",
+            "De-risked ambiguous opportunity through rapid learning experiments at Middle complexity."
+          ]
+        },
+        "Senior": {
+          "signals": [
+            "Shapes direction in ambiguous problem spaces; demonstrates decision quality under ambiguity and incomplete data with concrete ownership.",
+            "Explains trade-offs and decisions in decision quality under ambiguity and incomplete data with clear rationale."
+          ],
+          "anti_signals": [
+            "Waits for perfect requirements before acting",
+            "Makes decisions without stating assumptions or risks"
+          ],
+          "typical_examples": [
+            "Made a key product call with incomplete data and documented assumptions at Senior scope.",
+            "De-risked ambiguous opportunity through rapid learning experiments at Senior complexity."
+          ]
+        },
+        "Lead_IC": {
+          "signals": [
+            "Makes principled calls with major unknowns; demonstrates decision quality under ambiguity and incomplete data with concrete ownership.",
+            "Explains trade-offs and decisions in decision quality under ambiguity and incomplete data with clear rationale."
+          ],
+          "anti_signals": [
+            "Waits for perfect requirements before acting",
+            "Makes decisions without stating assumptions or risks"
+          ],
+          "typical_examples": [
+            "Made a key product call with incomplete data and documented assumptions at Lead_IC scope.",
+            "De-risked ambiguous opportunity through rapid learning experiments at Lead_IC complexity."
+          ]
+        },
+        "Head_M": {
+          "signals": [
+            "Reframes strategy and allocates bets under risk; demonstrates decision quality under ambiguity and incomplete data with concrete ownership.",
+            "Explains trade-offs and decisions in decision quality under ambiguity and incomplete data with clear rationale."
+          ],
+          "anti_signals": [
+            "Waits for perfect requirements before acting",
+            "Makes decisions without stating assumptions or risks"
+          ],
+          "typical_examples": [
+            "Made a key product call with incomplete data and documented assumptions at Head_M scope.",
+            "De-risked ambiguous opportunity through rapid learning experiments at Head_M complexity."
+          ]
+        },
+        "ArtDirector_IC": {
+          "signals": [
+            "Uses taste and evidence to steer high-risk choices; demonstrates decision quality under ambiguity and incomplete data with concrete ownership.",
+            "Explains trade-offs and decisions in decision quality under ambiguity and incomplete data with clear rationale."
+          ],
+          "anti_signals": [
+            "Waits for perfect requirements before acting",
+            "Makes decisions without stating assumptions or risks"
+          ],
+          "typical_examples": [
+            "Made a key product call with incomplete data and documented assumptions at ArtDirector_IC scope.",
+            "De-risked ambiguous opportunity through rapid learning experiments at ArtDirector_IC complexity."
+          ]
+        },
+        "DesignDirector_M": {
+          "signals": [
+            "Steers portfolio strategy amid significant ambiguity; demonstrates decision quality under ambiguity and incomplete data with concrete ownership.",
+            "Explains trade-offs and decisions in decision quality under ambiguity and incomplete data with clear rationale."
+          ],
+          "anti_signals": [
+            "Waits for perfect requirements before acting",
+            "Makes decisions without stating assumptions or risks"
+          ],
+          "typical_examples": [
+            "Made a key product call with incomplete data and documented assumptions at DesignDirector_M scope.",
+            "De-risked ambiguous opportunity through rapid learning experiments at DesignDirector_M complexity."
+          ]
+        }
+      }
+    },
+    "planning_horizon": {
+      "display_name": "Planning Horizon",
+      "levels": {
+        "Junior": {
+          "signals": [
+            "Plans in short iterations (days to a sprint); demonstrates planning depth across time horizons with concrete ownership.",
+            "Explains trade-offs and decisions in planning depth across time horizons with clear rationale."
+          ],
+          "anti_signals": [
+            "Plans only for immediate tasks with no sequencing",
+            "Roadmaps are detached from delivery reality"
+          ],
+          "typical_examples": [
+            "Built phased roadmap balancing short-term delivery and strategic bets at Junior scope.",
+            "Adjusted plan when constraints changed while preserving outcomes at Junior complexity."
+          ]
+        },
+        "Middle": {
+          "signals": [
+            "Plans across multiple sprints; demonstrates planning depth across time horizons with concrete ownership.",
+            "Explains trade-offs and decisions in planning depth across time horizons with clear rationale."
+          ],
+          "anti_signals": [
+            "Plans only for immediate tasks with no sequencing",
+            "Roadmaps are detached from delivery reality"
+          ],
+          "typical_examples": [
+            "Built phased roadmap balancing short-term delivery and strategic bets at Middle scope.",
+            "Adjusted plan when constraints changed while preserving outcomes at Middle complexity."
+          ]
+        },
+        "Senior": {
+          "signals": [
+            "Balances quarterly planning with tactical delivery; demonstrates planning depth across time horizons with concrete ownership.",
+            "Explains trade-offs and decisions in planning depth across time horizons with clear rationale."
+          ],
+          "anti_signals": [
+            "Plans only for immediate tasks with no sequencing",
+            "Roadmaps are detached from delivery reality"
+          ],
+          "typical_examples": [
+            "Built phased roadmap balancing short-term delivery and strategic bets at Senior scope.",
+            "Adjusted plan when constraints changed while preserving outcomes at Senior complexity."
+          ]
+        },
+        "Lead_IC": {
+          "signals": [
+            "Operates on half-year horizons while unblocking now; demonstrates planning depth across time horizons with concrete ownership.",
+            "Explains trade-offs and decisions in planning depth across time horizons with clear rationale."
+          ],
+          "anti_signals": [
+            "Plans only for immediate tasks with no sequencing",
+            "Roadmaps are detached from delivery reality"
+          ],
+          "typical_examples": [
+            "Built phased roadmap balancing short-term delivery and strategic bets at Lead_IC scope.",
+            "Adjusted plan when constraints changed while preserving outcomes at Lead_IC complexity."
+          ]
+        },
+        "Head_M": {
+          "signals": [
+            "Owns annual planning and portfolio sequencing; demonstrates planning depth across time horizons with concrete ownership.",
+            "Explains trade-offs and decisions in planning depth across time horizons with clear rationale."
+          ],
+          "anti_signals": [
+            "Plans only for immediate tasks with no sequencing",
+            "Roadmaps are detached from delivery reality"
+          ],
+          "typical_examples": [
+            "Built phased roadmap balancing short-term delivery and strategic bets at Head_M scope.",
+            "Adjusted plan when constraints changed while preserving outcomes at Head_M complexity."
+          ]
+        },
+        "ArtDirector_IC": {
+          "signals": [
+            "Links near-term launches to long-term creative direction; demonstrates planning depth across time horizons with concrete ownership.",
+            "Explains trade-offs and decisions in planning depth across time horizons with clear rationale."
+          ],
+          "anti_signals": [
+            "Plans only for immediate tasks with no sequencing",
+            "Roadmaps are detached from delivery reality"
+          ],
+          "typical_examples": [
+            "Built phased roadmap balancing short-term delivery and strategic bets at ArtDirector_IC scope.",
+            "Adjusted plan when constraints changed while preserving outcomes at ArtDirector_IC complexity."
+          ]
+        },
+        "DesignDirector_M": {
+          "signals": [
+            "Owns multi-year capability and product direction; demonstrates planning depth across time horizons with concrete ownership.",
+            "Explains trade-offs and decisions in planning depth across time horizons with clear rationale."
+          ],
+          "anti_signals": [
+            "Plans only for immediate tasks with no sequencing",
+            "Roadmaps are detached from delivery reality"
+          ],
+          "typical_examples": [
+            "Built phased roadmap balancing short-term delivery and strategic bets at DesignDirector_M scope.",
+            "Adjusted plan when constraints changed while preserving outcomes at DesignDirector_M complexity."
+          ]
+        }
+      }
+    },
+    "hard_craft": {
+      "display_name": "Hard Skills: Craft",
+      "levels": {
+        "Junior": {
+          "signals": [
+            "Applies core methods with support; demonstrates interaction, visual, and content execution quality with concrete ownership.",
+            "Explains trade-offs and decisions in interaction, visual, and content execution quality with clear rationale."
+          ],
+          "anti_signals": [
+            "Inconsistent interaction patterns and weak details",
+            "Cannot justify craft decisions with user rationale"
+          ],
+          "typical_examples": [
+            "Shipped polished interaction details that improved usability at Junior scope.",
+            "Elevated visual hierarchy and clarity across critical user flows at Junior complexity."
+          ]
+        },
+        "Middle": {
+          "signals": [
+            "Uses strong craft and system thinking independently; demonstrates interaction, visual, and content execution quality with concrete ownership.",
+            "Explains trade-offs and decisions in interaction, visual, and content execution quality with clear rationale."
+          ],
+          "anti_signals": [
+            "Inconsistent interaction patterns and weak details",
+            "Cannot justify craft decisions with user rationale"
+          ],
+          "typical_examples": [
+            "Shipped polished interaction details that improved usability at Middle scope.",
+            "Elevated visual hierarchy and clarity across critical user flows at Middle complexity."
+          ]
+        },
+        "Senior": {
+          "signals": [
+            "Connects craft, systems, and product strategy; demonstrates interaction, visual, and content execution quality with concrete ownership.",
+            "Explains trade-offs and decisions in interaction, visual, and content execution quality with clear rationale."
+          ],
+          "anti_signals": [
+            "Inconsistent interaction patterns and weak details",
+            "Cannot justify craft decisions with user rationale"
+          ],
+          "typical_examples": [
+            "Shipped polished interaction details that improved usability at Senior scope.",
+            "Elevated visual hierarchy and clarity across critical user flows at Senior complexity."
+          ]
+        },
+        "Lead_IC": {
+          "signals": [
+            "Sets craft/system direction for multiple products; demonstrates interaction, visual, and content execution quality with concrete ownership.",
+            "Explains trade-offs and decisions in interaction, visual, and content execution quality with clear rationale."
+          ],
+          "anti_signals": [
+            "Inconsistent interaction patterns and weak details",
+            "Cannot justify craft decisions with user rationale"
+          ],
+          "typical_examples": [
+            "Shipped polished interaction details that improved usability at Lead_IC scope.",
+            "Elevated visual hierarchy and clarity across critical user flows at Lead_IC complexity."
+          ]
+        },
+        "Head_M": {
+          "signals": [
+            "Ensures teams apply high-quality craft/system practices; demonstrates interaction, visual, and content execution quality with concrete ownership.",
+            "Explains trade-offs and decisions in interaction, visual, and content execution quality with clear rationale."
+          ],
+          "anti_signals": [
+            "Inconsistent interaction patterns and weak details",
+            "Cannot justify craft decisions with user rationale"
+          ],
+          "typical_examples": [
+            "Shipped polished interaction details that improved usability at Head_M scope.",
+            "Elevated visual hierarchy and clarity across critical user flows at Head_M complexity."
+          ]
+        },
+        "ArtDirector_IC": {
+          "signals": [
+            "Defines exceptional craft language and visual systems; demonstrates interaction, visual, and content execution quality with concrete ownership.",
+            "Explains trade-offs and decisions in interaction, visual, and content execution quality with clear rationale."
+          ],
+          "anti_signals": [
+            "Inconsistent interaction patterns and weak details",
+            "Cannot justify craft decisions with user rationale"
+          ],
+          "typical_examples": [
+            "Shipped polished interaction details that improved usability at ArtDirector_IC scope.",
+            "Elevated visual hierarchy and clarity across critical user flows at ArtDirector_IC complexity."
+          ]
+        },
+        "DesignDirector_M": {
+          "signals": [
+            "Establishes organizational quality systems and reviews; demonstrates interaction, visual, and content execution quality with concrete ownership.",
+            "Explains trade-offs and decisions in interaction, visual, and content execution quality with clear rationale."
+          ],
+          "anti_signals": [
+            "Inconsistent interaction patterns and weak details",
+            "Cannot justify craft decisions with user rationale"
+          ],
+          "typical_examples": [
+            "Shipped polished interaction details that improved usability at DesignDirector_M scope.",
+            "Elevated visual hierarchy and clarity across critical user flows at DesignDirector_M complexity."
+          ]
+        }
+      }
+    },
+    "hard_systems": {
+      "display_name": "Hard Skills: Systems",
+      "levels": {
+        "Junior": {
+          "signals": [
+            "Applies core methods with support; demonstrates design systems and scalable UX patterns with concrete ownership.",
+            "Explains trade-offs and decisions in design systems and scalable UX patterns with clear rationale."
+          ],
+          "anti_signals": [
+            "Treats each feature as one-off with no reuse",
+            "System debt grows without remediation plan"
+          ],
+          "typical_examples": [
+            "Introduced reusable components that sped up future delivery at Junior scope.",
+            "Reduced inconsistency via system standards and governance at Junior complexity."
+          ]
+        },
+        "Middle": {
+          "signals": [
+            "Uses strong craft and system thinking independently; demonstrates design systems and scalable UX patterns with concrete ownership.",
+            "Explains trade-offs and decisions in design systems and scalable UX patterns with clear rationale."
+          ],
+          "anti_signals": [
+            "Treats each feature as one-off with no reuse",
+            "System debt grows without remediation plan"
+          ],
+          "typical_examples": [
+            "Introduced reusable components that sped up future delivery at Middle scope.",
+            "Reduced inconsistency via system standards and governance at Middle complexity."
+          ]
+        },
+        "Senior": {
+          "signals": [
+            "Connects craft, systems, and product strategy; demonstrates design systems and scalable UX patterns with concrete ownership.",
+            "Explains trade-offs and decisions in design systems and scalable UX patterns with clear rationale."
+          ],
+          "anti_signals": [
+            "Treats each feature as one-off with no reuse",
+            "System debt grows without remediation plan"
+          ],
+          "typical_examples": [
+            "Introduced reusable components that sped up future delivery at Senior scope.",
+            "Reduced inconsistency via system standards and governance at Senior complexity."
+          ]
+        },
+        "Lead_IC": {
+          "signals": [
+            "Sets craft/system direction for multiple products; demonstrates design systems and scalable UX patterns with concrete ownership.",
+            "Explains trade-offs and decisions in design systems and scalable UX patterns with clear rationale."
+          ],
+          "anti_signals": [
+            "Treats each feature as one-off with no reuse",
+            "System debt grows without remediation plan"
+          ],
+          "typical_examples": [
+            "Introduced reusable components that sped up future delivery at Lead_IC scope.",
+            "Reduced inconsistency via system standards and governance at Lead_IC complexity."
+          ]
+        },
+        "Head_M": {
+          "signals": [
+            "Ensures teams apply high-quality craft/system practices; demonstrates design systems and scalable UX patterns with concrete ownership.",
+            "Explains trade-offs and decisions in design systems and scalable UX patterns with clear rationale."
+          ],
+          "anti_signals": [
+            "Treats each feature as one-off with no reuse",
+            "System debt grows without remediation plan"
+          ],
+          "typical_examples": [
+            "Introduced reusable components that sped up future delivery at Head_M scope.",
+            "Reduced inconsistency via system standards and governance at Head_M complexity."
+          ]
+        },
+        "ArtDirector_IC": {
+          "signals": [
+            "Defines exceptional craft language and visual systems; demonstrates design systems and scalable UX patterns with concrete ownership.",
+            "Explains trade-offs and decisions in design systems and scalable UX patterns with clear rationale."
+          ],
+          "anti_signals": [
+            "Treats each feature as one-off with no reuse",
+            "System debt grows without remediation plan"
+          ],
+          "typical_examples": [
+            "Introduced reusable components that sped up future delivery at ArtDirector_IC scope.",
+            "Reduced inconsistency via system standards and governance at ArtDirector_IC complexity."
+          ]
+        },
+        "DesignDirector_M": {
+          "signals": [
+            "Establishes organizational quality systems and reviews; demonstrates design systems and scalable UX patterns with concrete ownership.",
+            "Explains trade-offs and decisions in design systems and scalable UX patterns with clear rationale."
+          ],
+          "anti_signals": [
+            "Treats each feature as one-off with no reuse",
+            "System debt grows without remediation plan"
+          ],
+          "typical_examples": [
+            "Introduced reusable components that sped up future delivery at DesignDirector_M scope.",
+            "Reduced inconsistency via system standards and governance at DesignDirector_M complexity."
+          ]
+        }
+      }
+    },
+    "hard_product_business": {
+      "display_name": "Hard Skills: Product & Business",
+      "levels": {
+        "Junior": {
+          "signals": [
+            "Applies core methods with support; demonstrates product strategy, metrics, and business trade-offs with concrete ownership.",
+            "Explains trade-offs and decisions in product strategy, metrics, and business trade-offs with clear rationale."
+          ],
+          "anti_signals": [
+            "Design decisions ignore business constraints",
+            "Cannot articulate metric impact or trade-offs"
+          ],
+          "typical_examples": [
+            "Reframed feature scope based on business model and KPI impact at Junior scope.",
+            "Partnered with PM to prioritize based on value and risk at Junior complexity."
+          ]
+        },
+        "Middle": {
+          "signals": [
+            "Uses strong craft and system thinking independently; demonstrates product strategy, metrics, and business trade-offs with concrete ownership.",
+            "Explains trade-offs and decisions in product strategy, metrics, and business trade-offs with clear rationale."
+          ],
+          "anti_signals": [
+            "Design decisions ignore business constraints",
+            "Cannot articulate metric impact or trade-offs"
+          ],
+          "typical_examples": [
+            "Reframed feature scope based on business model and KPI impact at Middle scope.",
+            "Partnered with PM to prioritize based on value and risk at Middle complexity."
+          ]
+        },
+        "Senior": {
+          "signals": [
+            "Connects craft, systems, and product strategy; demonstrates product strategy, metrics, and business trade-offs with concrete ownership.",
+            "Explains trade-offs and decisions in product strategy, metrics, and business trade-offs with clear rationale."
+          ],
+          "anti_signals": [
+            "Design decisions ignore business constraints",
+            "Cannot articulate metric impact or trade-offs"
+          ],
+          "typical_examples": [
+            "Reframed feature scope based on business model and KPI impact at Senior scope.",
+            "Partnered with PM to prioritize based on value and risk at Senior complexity."
+          ]
+        },
+        "Lead_IC": {
+          "signals": [
+            "Sets craft/system direction for multiple products; demonstrates product strategy, metrics, and business trade-offs with concrete ownership.",
+            "Explains trade-offs and decisions in product strategy, metrics, and business trade-offs with clear rationale."
+          ],
+          "anti_signals": [
+            "Design decisions ignore business constraints",
+            "Cannot articulate metric impact or trade-offs"
+          ],
+          "typical_examples": [
+            "Reframed feature scope based on business model and KPI impact at Lead_IC scope.",
+            "Partnered with PM to prioritize based on value and risk at Lead_IC complexity."
+          ]
+        },
+        "Head_M": {
+          "signals": [
+            "Ensures teams apply high-quality craft/system practices; demonstrates product strategy, metrics, and business trade-offs with concrete ownership.",
+            "Explains trade-offs and decisions in product strategy, metrics, and business trade-offs with clear rationale."
+          ],
+          "anti_signals": [
+            "Design decisions ignore business constraints",
+            "Cannot articulate metric impact or trade-offs"
+          ],
+          "typical_examples": [
+            "Reframed feature scope based on business model and KPI impact at Head_M scope.",
+            "Partnered with PM to prioritize based on value and risk at Head_M complexity."
+          ]
+        },
+        "ArtDirector_IC": {
+          "signals": [
+            "Defines exceptional craft language and visual systems; demonstrates product strategy, metrics, and business trade-offs with concrete ownership.",
+            "Explains trade-offs and decisions in product strategy, metrics, and business trade-offs with clear rationale."
+          ],
+          "anti_signals": [
+            "Design decisions ignore business constraints",
+            "Cannot articulate metric impact or trade-offs"
+          ],
+          "typical_examples": [
+            "Reframed feature scope based on business model and KPI impact at ArtDirector_IC scope.",
+            "Partnered with PM to prioritize based on value and risk at ArtDirector_IC complexity."
+          ]
+        },
+        "DesignDirector_M": {
+          "signals": [
+            "Establishes organizational quality systems and reviews; demonstrates product strategy, metrics, and business trade-offs with concrete ownership.",
+            "Explains trade-offs and decisions in product strategy, metrics, and business trade-offs with clear rationale."
+          ],
+          "anti_signals": [
+            "Design decisions ignore business constraints",
+            "Cannot articulate metric impact or trade-offs"
+          ],
+          "typical_examples": [
+            "Reframed feature scope based on business model and KPI impact at DesignDirector_M scope.",
+            "Partnered with PM to prioritize based on value and risk at DesignDirector_M complexity."
+          ]
+        }
+      }
+    },
+    "soft_communication_influence": {
+      "display_name": "Soft Skills: Communication & Influence",
+      "levels": {
+        "Junior": {
+          "signals": [
+            "Communicates clearly in immediate team rituals; demonstrates clarity, stakeholder influence, and alignment with concrete ownership.",
+            "Explains trade-offs and decisions in clarity, stakeholder influence, and alignment with clear rationale."
+          ],
+          "anti_signals": [
+            "Communication is unclear or overly tactical",
+            "Struggles to align stakeholders on decisions"
+          ],
+          "typical_examples": [
+            "Aligned engineering and PM on a contested product direction at Junior scope.",
+            "Won buy-in by communicating trade-offs and user evidence clearly at Junior complexity."
+          ]
+        },
+        "Middle": {
+          "signals": [
+            "Influences PM/engineering through rationale; demonstrates clarity, stakeholder influence, and alignment with concrete ownership.",
+            "Explains trade-offs and decisions in clarity, stakeholder influence, and alignment with clear rationale."
+          ],
+          "anti_signals": [
+            "Communication is unclear or overly tactical",
+            "Struggles to align stakeholders on decisions"
+          ],
+          "typical_examples": [
+            "Aligned engineering and PM on a contested product direction at Middle scope.",
+            "Won buy-in by communicating trade-offs and user evidence clearly at Middle complexity."
+          ]
+        },
+        "Senior": {
+          "signals": [
+            "Aligns cross-functional stakeholders across functions; demonstrates clarity, stakeholder influence, and alignment with concrete ownership.",
+            "Explains trade-offs and decisions in clarity, stakeholder influence, and alignment with clear rationale."
+          ],
+          "anti_signals": [
+            "Communication is unclear or overly tactical",
+            "Struggles to align stakeholders on decisions"
+          ],
+          "typical_examples": [
+            "Aligned engineering and PM on a contested product direction at Senior scope.",
+            "Won buy-in by communicating trade-offs and user evidence clearly at Senior complexity."
+          ]
+        },
+        "Lead_IC": {
+          "signals": [
+            "Influences senior leaders without formal authority; demonstrates clarity, stakeholder influence, and alignment with concrete ownership.",
+            "Explains trade-offs and decisions in clarity, stakeholder influence, and alignment with clear rationale."
+          ],
+          "anti_signals": [
+            "Communication is unclear or overly tactical",
+            "Struggles to align stakeholders on decisions"
+          ],
+          "typical_examples": [
+            "Aligned engineering and PM on a contested product direction at Lead_IC scope.",
+            "Won buy-in by communicating trade-offs and user evidence clearly at Lead_IC complexity."
+          ]
+        },
+        "Head_M": {
+          "signals": [
+            "Builds executive alignment and resolves escalations; demonstrates clarity, stakeholder influence, and alignment with concrete ownership.",
+            "Explains trade-offs and decisions in clarity, stakeholder influence, and alignment with clear rationale."
+          ],
+          "anti_signals": [
+            "Communication is unclear or overly tactical",
+            "Struggles to align stakeholders on decisions"
+          ],
+          "typical_examples": [
+            "Aligned engineering and PM on a contested product direction at Head_M scope.",
+            "Won buy-in by communicating trade-offs and user evidence clearly at Head_M complexity."
+          ]
+        },
+        "ArtDirector_IC": {
+          "signals": [
+            "Persuades executives and partners with strong storytelling; demonstrates clarity, stakeholder influence, and alignment with concrete ownership.",
+            "Explains trade-offs and decisions in clarity, stakeholder influence, and alignment with clear rationale."
+          ],
+          "anti_signals": [
+            "Communication is unclear or overly tactical",
+            "Struggles to align stakeholders on decisions"
+          ],
+          "typical_examples": [
+            "Aligned engineering and PM on a contested product direction at ArtDirector_IC scope.",
+            "Won buy-in by communicating trade-offs and user evidence clearly at ArtDirector_IC complexity."
+          ]
+        },
+        "DesignDirector_M": {
+          "signals": [
+            "Shapes executive decisions and external perception; demonstrates clarity, stakeholder influence, and alignment with concrete ownership.",
+            "Explains trade-offs and decisions in clarity, stakeholder influence, and alignment with clear rationale."
+          ],
+          "anti_signals": [
+            "Communication is unclear or overly tactical",
+            "Struggles to align stakeholders on decisions"
+          ],
+          "typical_examples": [
+            "Aligned engineering and PM on a contested product direction at DesignDirector_M scope.",
+            "Won buy-in by communicating trade-offs and user evidence clearly at DesignDirector_M complexity."
+          ]
+        }
+      }
+    },
+    "management": {
+      "display_name": "Management",
+      "levels": {
+        "Junior": {
+          "signals": [
+            "Supports peers informally without formal management; demonstrates people leadership, coaching, hiring, and delegation with concrete ownership.",
+            "Explains trade-offs and decisions in people leadership, coaching, hiring, and delegation with clear rationale."
+          ],
+          "anti_signals": [
+            "Delegation is unclear and follow-through is inconsistent",
+            "Coaching and feedback are ad hoc"
+          ],
+          "typical_examples": [
+            "Coached a designer through a growth plan with visible improvement at Junior scope.",
+            "Built team rituals for prioritization, critique, and execution health at Junior complexity."
+          ]
+        },
+        "Middle": {
+          "signals": [
+            "Mentors juniors and coordinates delivery moments; demonstrates people leadership, coaching, hiring, and delegation with concrete ownership.",
+            "Explains trade-offs and decisions in people leadership, coaching, hiring, and delegation with clear rationale."
+          ],
+          "anti_signals": [
+            "Delegation is unclear and follow-through is inconsistent",
+            "Coaching and feedback are ad hoc"
+          ],
+          "typical_examples": [
+            "Coached a designer through a growth plan with visible improvement at Middle scope.",
+            "Built team rituals for prioritization, critique, and execution health at Middle complexity."
+          ]
+        },
+        "Senior": {
+          "signals": [
+            "Coaches others and improves team operating model; demonstrates people leadership, coaching, hiring, and delegation with concrete ownership.",
+            "Explains trade-offs and decisions in people leadership, coaching, hiring, and delegation with clear rationale."
+          ],
+          "anti_signals": [
+            "Delegation is unclear and follow-through is inconsistent",
+            "Coaching and feedback are ad hoc"
+          ],
+          "typical_examples": [
+            "Coached a designer through a growth plan with visible improvement at Senior scope.",
+            "Built team rituals for prioritization, critique, and execution health at Senior complexity."
+          ]
+        },
+        "Lead_IC": {
+          "signals": [
+            "Leads through mentorship and technical leadership; demonstrates people leadership, coaching, hiring, and delegation with concrete ownership.",
+            "Explains trade-offs and decisions in people leadership, coaching, hiring, and delegation with clear rationale."
+          ],
+          "anti_signals": [
+            "Delegation is unclear and follow-through is inconsistent",
+            "Coaching and feedback are ad hoc"
+          ],
+          "typical_examples": [
+            "Coached a designer through a growth plan with visible improvement at Lead_IC scope.",
+            "Built team rituals for prioritization, critique, and execution health at Lead_IC complexity."
+          ]
+        },
+        "Head_M": {
+          "signals": [
+            "Hires, develops, and manages managers/designers; demonstrates people leadership, coaching, hiring, and delegation with concrete ownership.",
+            "Explains trade-offs and decisions in people leadership, coaching, hiring, and delegation with clear rationale."
+          ],
+          "anti_signals": [
+            "Delegation is unclear and follow-through is inconsistent",
+            "Coaching and feedback are ad hoc"
+          ],
+          "typical_examples": [
+            "Coached a designer through a growth plan with visible improvement at Head_M scope.",
+            "Built team rituals for prioritization, critique, and execution health at Head_M complexity."
+          ]
+        },
+        "ArtDirector_IC": {
+          "signals": [
+            "Mentors creative peers without line management; demonstrates people leadership, coaching, hiring, and delegation with concrete ownership.",
+            "Explains trade-offs and decisions in people leadership, coaching, hiring, and delegation with clear rationale."
+          ],
+          "anti_signals": [
+            "Delegation is unclear and follow-through is inconsistent",
+            "Coaching and feedback are ad hoc"
+          ],
+          "typical_examples": [
+            "Coached a designer through a growth plan with visible improvement at ArtDirector_IC scope.",
+            "Built team rituals for prioritization, critique, and execution health at ArtDirector_IC complexity."
+          ]
+        },
+        "DesignDirector_M": {
+          "signals": [
+            "Builds leadership bench and succession plans; demonstrates people leadership, coaching, hiring, and delegation with concrete ownership.",
+            "Explains trade-offs and decisions in people leadership, coaching, hiring, and delegation with clear rationale."
+          ],
+          "anti_signals": [
+            "Delegation is unclear and follow-through is inconsistent",
+            "Coaching and feedback are ad hoc"
+          ],
+          "typical_examples": [
+            "Coached a designer through a growth plan with visible improvement at DesignDirector_M scope.",
+            "Built team rituals for prioritization, critique, and execution health at DesignDirector_M complexity."
+          ]
+        }
+      }
+    },
+    "culture_ownership": {
+      "display_name": "Culture: Ownership",
+      "levels": {
+        "Junior": {
+          "signals": [
+            "Contributes positively when prompted; demonstrates taking responsibility for outcomes and follow-through with concrete ownership.",
+            "Explains trade-offs and decisions in taking responsibility for outcomes and follow-through with clear rationale."
+          ],
+          "anti_signals": [
+            "Drops threads when blockers appear",
+            "Blames process instead of driving resolution"
+          ],
+          "typical_examples": [
+            "Closed a cross-team issue by coordinating stakeholders to resolution at Junior scope.",
+            "Followed through on commitments despite changing constraints at Junior complexity."
+          ]
+        },
+        "Middle": {
+          "signals": [
+            "Proactively raises team standards; demonstrates taking responsibility for outcomes and follow-through with concrete ownership.",
+            "Explains trade-offs and decisions in taking responsibility for outcomes and follow-through with clear rationale."
+          ],
+          "anti_signals": [
+            "Drops threads when blockers appear",
+            "Blames process instead of driving resolution"
+          ],
+          "typical_examples": [
+            "Closed a cross-team issue by coordinating stakeholders to resolution at Middle scope.",
+            "Followed through on commitments despite changing constraints at Middle complexity."
+          ]
+        },
+        "Senior": {
+          "signals": [
+            "Sets behavioral norms through consistent example; demonstrates taking responsibility for outcomes and follow-through with concrete ownership.",
+            "Explains trade-offs and decisions in taking responsibility for outcomes and follow-through with clear rationale."
+          ],
+          "anti_signals": [
+            "Drops threads when blockers appear",
+            "Blames process instead of driving resolution"
+          ],
+          "typical_examples": [
+            "Closed a cross-team issue by coordinating stakeholders to resolution at Senior scope.",
+            "Followed through on commitments despite changing constraints at Senior complexity."
+          ]
+        },
+        "Lead_IC": {
+          "signals": [
+            "Raises quality bar org-wide through action; demonstrates taking responsibility for outcomes and follow-through with concrete ownership.",
+            "Explains trade-offs and decisions in taking responsibility for outcomes and follow-through with clear rationale."
+          ],
+          "anti_signals": [
+            "Drops threads when blockers appear",
+            "Blames process instead of driving resolution"
+          ],
+          "typical_examples": [
+            "Closed a cross-team issue by coordinating stakeholders to resolution at Lead_IC scope.",
+            "Followed through on commitments despite changing constraints at Lead_IC complexity."
+          ]
+        },
+        "Head_M": {
+          "signals": [
+            "Builds repeatable systems for culture and accountability; demonstrates taking responsibility for outcomes and follow-through with concrete ownership.",
+            "Explains trade-offs and decisions in taking responsibility for outcomes and follow-through with clear rationale."
+          ],
+          "anti_signals": [
+            "Drops threads when blockers appear",
+            "Blames process instead of driving resolution"
+          ],
+          "typical_examples": [
+            "Closed a cross-team issue by coordinating stakeholders to resolution at Head_M scope.",
+            "Followed through on commitments despite changing constraints at Head_M complexity."
+          ]
+        },
+        "ArtDirector_IC": {
+          "signals": [
+            "Embeds ambitious creative standards in daily work; demonstrates taking responsibility for outcomes and follow-through with concrete ownership.",
+            "Explains trade-offs and decisions in taking responsibility for outcomes and follow-through with clear rationale."
+          ],
+          "anti_signals": [
+            "Drops threads when blockers appear",
+            "Blames process instead of driving resolution"
+          ],
+          "typical_examples": [
+            "Closed a cross-team issue by coordinating stakeholders to resolution at ArtDirector_IC scope.",
+            "Followed through on commitments despite changing constraints at ArtDirector_IC complexity."
+          ]
+        },
+        "DesignDirector_M": {
+          "signals": [
+            "Institutionalizes high-trust, high-performance culture; demonstrates taking responsibility for outcomes and follow-through with concrete ownership.",
+            "Explains trade-offs and decisions in taking responsibility for outcomes and follow-through with clear rationale."
+          ],
+          "anti_signals": [
+            "Drops threads when blockers appear",
+            "Blames process instead of driving resolution"
+          ],
+          "typical_examples": [
+            "Closed a cross-team issue by coordinating stakeholders to resolution at DesignDirector_M scope.",
+            "Followed through on commitments despite changing constraints at DesignDirector_M complexity."
+          ]
+        }
+      }
+    },
+    "culture_proactivity": {
+      "display_name": "Culture: Proactivity",
+      "levels": {
+        "Junior": {
+          "signals": [
+            "Contributes positively when prompted; demonstrates initiating improvements before being asked with concrete ownership.",
+            "Explains trade-offs and decisions in initiating improvements before being asked with clear rationale."
+          ],
+          "anti_signals": [
+            "Waits to be told what to improve",
+            "Spots issues but does not initiate action"
+          ],
+          "typical_examples": [
+            "Initiated a process or quality improvement before escalation at Junior scope.",
+            "Identified risk early and proposed a practical mitigation plan at Junior complexity."
+          ]
+        },
+        "Middle": {
+          "signals": [
+            "Proactively raises team standards; demonstrates initiating improvements before being asked with concrete ownership.",
+            "Explains trade-offs and decisions in initiating improvements before being asked with clear rationale."
+          ],
+          "anti_signals": [
+            "Waits to be told what to improve",
+            "Spots issues but does not initiate action"
+          ],
+          "typical_examples": [
+            "Initiated a process or quality improvement before escalation at Middle scope.",
+            "Identified risk early and proposed a practical mitigation plan at Middle complexity."
+          ]
+        },
+        "Senior": {
+          "signals": [
+            "Sets behavioral norms through consistent example; demonstrates initiating improvements before being asked with concrete ownership.",
+            "Explains trade-offs and decisions in initiating improvements before being asked with clear rationale."
+          ],
+          "anti_signals": [
+            "Waits to be told what to improve",
+            "Spots issues but does not initiate action"
+          ],
+          "typical_examples": [
+            "Initiated a process or quality improvement before escalation at Senior scope.",
+            "Identified risk early and proposed a practical mitigation plan at Senior complexity."
+          ]
+        },
+        "Lead_IC": {
+          "signals": [
+            "Raises quality bar org-wide through action; demonstrates initiating improvements before being asked with concrete ownership.",
+            "Explains trade-offs and decisions in initiating improvements before being asked with clear rationale."
+          ],
+          "anti_signals": [
+            "Waits to be told what to improve",
+            "Spots issues but does not initiate action"
+          ],
+          "typical_examples": [
+            "Initiated a process or quality improvement before escalation at Lead_IC scope.",
+            "Identified risk early and proposed a practical mitigation plan at Lead_IC complexity."
+          ]
+        },
+        "Head_M": {
+          "signals": [
+            "Builds repeatable systems for culture and accountability; demonstrates initiating improvements before being asked with concrete ownership.",
+            "Explains trade-offs and decisions in initiating improvements before being asked with clear rationale."
+          ],
+          "anti_signals": [
+            "Waits to be told what to improve",
+            "Spots issues but does not initiate action"
+          ],
+          "typical_examples": [
+            "Initiated a process or quality improvement before escalation at Head_M scope.",
+            "Identified risk early and proposed a practical mitigation plan at Head_M complexity."
+          ]
+        },
+        "ArtDirector_IC": {
+          "signals": [
+            "Embeds ambitious creative standards in daily work; demonstrates initiating improvements before being asked with concrete ownership.",
+            "Explains trade-offs and decisions in initiating improvements before being asked with clear rationale."
+          ],
+          "anti_signals": [
+            "Waits to be told what to improve",
+            "Spots issues but does not initiate action"
+          ],
+          "typical_examples": [
+            "Initiated a process or quality improvement before escalation at ArtDirector_IC scope.",
+            "Identified risk early and proposed a practical mitigation plan at ArtDirector_IC complexity."
+          ]
+        },
+        "DesignDirector_M": {
+          "signals": [
+            "Institutionalizes high-trust, high-performance culture; demonstrates initiating improvements before being asked with concrete ownership.",
+            "Explains trade-offs and decisions in initiating improvements before being asked with clear rationale."
+          ],
+          "anti_signals": [
+            "Waits to be told what to improve",
+            "Spots issues but does not initiate action"
+          ],
+          "typical_examples": [
+            "Initiated a process or quality improvement before escalation at DesignDirector_M scope.",
+            "Identified risk early and proposed a practical mitigation plan at DesignDirector_M complexity."
+          ]
+        }
+      }
+    },
+    "culture_quality_bar": {
+      "display_name": "Culture: Quality Bar",
+      "levels": {
+        "Junior": {
+          "signals": [
+            "Contributes positively when prompted; demonstrates maintaining and raising quality expectations with concrete ownership.",
+            "Explains trade-offs and decisions in maintaining and raising quality expectations with clear rationale."
+          ],
+          "anti_signals": [
+            "Accepts low standards under routine pressure",
+            "No explicit criteria for quality"
+          ],
+          "typical_examples": [
+            "Raised release quality through clearer review criteria at Junior scope.",
+            "Protected UX quality during tight timelines with smart scope cuts at Junior complexity."
+          ]
+        },
+        "Middle": {
+          "signals": [
+            "Proactively raises team standards; demonstrates maintaining and raising quality expectations with concrete ownership.",
+            "Explains trade-offs and decisions in maintaining and raising quality expectations with clear rationale."
+          ],
+          "anti_signals": [
+            "Accepts low standards under routine pressure",
+            "No explicit criteria for quality"
+          ],
+          "typical_examples": [
+            "Raised release quality through clearer review criteria at Middle scope.",
+            "Protected UX quality during tight timelines with smart scope cuts at Middle complexity."
+          ]
+        },
+        "Senior": {
+          "signals": [
+            "Sets behavioral norms through consistent example; demonstrates maintaining and raising quality expectations with concrete ownership.",
+            "Explains trade-offs and decisions in maintaining and raising quality expectations with clear rationale."
+          ],
+          "anti_signals": [
+            "Accepts low standards under routine pressure",
+            "No explicit criteria for quality"
+          ],
+          "typical_examples": [
+            "Raised release quality through clearer review criteria at Senior scope.",
+            "Protected UX quality during tight timelines with smart scope cuts at Senior complexity."
+          ]
+        },
+        "Lead_IC": {
+          "signals": [
+            "Raises quality bar org-wide through action; demonstrates maintaining and raising quality expectations with concrete ownership.",
+            "Explains trade-offs and decisions in maintaining and raising quality expectations with clear rationale."
+          ],
+          "anti_signals": [
+            "Accepts low standards under routine pressure",
+            "No explicit criteria for quality"
+          ],
+          "typical_examples": [
+            "Raised release quality through clearer review criteria at Lead_IC scope.",
+            "Protected UX quality during tight timelines with smart scope cuts at Lead_IC complexity."
+          ]
+        },
+        "Head_M": {
+          "signals": [
+            "Builds repeatable systems for culture and accountability; demonstrates maintaining and raising quality expectations with concrete ownership.",
+            "Explains trade-offs and decisions in maintaining and raising quality expectations with clear rationale."
+          ],
+          "anti_signals": [
+            "Accepts low standards under routine pressure",
+            "No explicit criteria for quality"
+          ],
+          "typical_examples": [
+            "Raised release quality through clearer review criteria at Head_M scope.",
+            "Protected UX quality during tight timelines with smart scope cuts at Head_M complexity."
+          ]
+        },
+        "ArtDirector_IC": {
+          "signals": [
+            "Embeds ambitious creative standards in daily work; demonstrates maintaining and raising quality expectations with concrete ownership.",
+            "Explains trade-offs and decisions in maintaining and raising quality expectations with clear rationale."
+          ],
+          "anti_signals": [
+            "Accepts low standards under routine pressure",
+            "No explicit criteria for quality"
+          ],
+          "typical_examples": [
+            "Raised release quality through clearer review criteria at ArtDirector_IC scope.",
+            "Protected UX quality during tight timelines with smart scope cuts at ArtDirector_IC complexity."
+          ]
+        },
+        "DesignDirector_M": {
+          "signals": [
+            "Institutionalizes high-trust, high-performance culture; demonstrates maintaining and raising quality expectations with concrete ownership.",
+            "Explains trade-offs and decisions in maintaining and raising quality expectations with clear rationale."
+          ],
+          "anti_signals": [
+            "Accepts low standards under routine pressure",
+            "No explicit criteria for quality"
+          ],
+          "typical_examples": [
+            "Raised release quality through clearer review criteria at DesignDirector_M scope.",
+            "Protected UX quality during tight timelines with smart scope cuts at DesignDirector_M complexity."
+          ]
+        }
+      }
+    },
+    "culture_collaboration": {
+      "display_name": "Culture: Collaboration",
+      "levels": {
+        "Junior": {
+          "signals": [
+            "Contributes positively when prompted; demonstrates cross-functional collaboration and conflict handling with concrete ownership.",
+            "Explains trade-offs and decisions in cross-functional collaboration and conflict handling with clear rationale."
+          ],
+          "anti_signals": [
+            "Works in silos and escalates conflict late",
+            "Prioritizes local wins over shared outcomes"
+          ],
+          "typical_examples": [
+            "Resolved disagreement through evidence-based facilitation at Junior scope.",
+            "Built trust across design, PM, and engineering during delivery at Junior complexity."
+          ]
+        },
+        "Middle": {
+          "signals": [
+            "Proactively raises team standards; demonstrates cross-functional collaboration and conflict handling with concrete ownership.",
+            "Explains trade-offs and decisions in cross-functional collaboration and conflict handling with clear rationale."
+          ],
+          "anti_signals": [
+            "Works in silos and escalates conflict late",
+            "Prioritizes local wins over shared outcomes"
+          ],
+          "typical_examples": [
+            "Resolved disagreement through evidence-based facilitation at Middle scope.",
+            "Built trust across design, PM, and engineering during delivery at Middle complexity."
+          ]
+        },
+        "Senior": {
+          "signals": [
+            "Sets behavioral norms through consistent example; demonstrates cross-functional collaboration and conflict handling with concrete ownership.",
+            "Explains trade-offs and decisions in cross-functional collaboration and conflict handling with clear rationale."
+          ],
+          "anti_signals": [
+            "Works in silos and escalates conflict late",
+            "Prioritizes local wins over shared outcomes"
+          ],
+          "typical_examples": [
+            "Resolved disagreement through evidence-based facilitation at Senior scope.",
+            "Built trust across design, PM, and engineering during delivery at Senior complexity."
+          ]
+        },
+        "Lead_IC": {
+          "signals": [
+            "Raises quality bar org-wide through action; demonstrates cross-functional collaboration and conflict handling with concrete ownership.",
+            "Explains trade-offs and decisions in cross-functional collaboration and conflict handling with clear rationale."
+          ],
+          "anti_signals": [
+            "Works in silos and escalates conflict late",
+            "Prioritizes local wins over shared outcomes"
+          ],
+          "typical_examples": [
+            "Resolved disagreement through evidence-based facilitation at Lead_IC scope.",
+            "Built trust across design, PM, and engineering during delivery at Lead_IC complexity."
+          ]
+        },
+        "Head_M": {
+          "signals": [
+            "Builds repeatable systems for culture and accountability; demonstrates cross-functional collaboration and conflict handling with concrete ownership.",
+            "Explains trade-offs and decisions in cross-functional collaboration and conflict handling with clear rationale."
+          ],
+          "anti_signals": [
+            "Works in silos and escalates conflict late",
+            "Prioritizes local wins over shared outcomes"
+          ],
+          "typical_examples": [
+            "Resolved disagreement through evidence-based facilitation at Head_M scope.",
+            "Built trust across design, PM, and engineering during delivery at Head_M complexity."
+          ]
+        },
+        "ArtDirector_IC": {
+          "signals": [
+            "Embeds ambitious creative standards in daily work; demonstrates cross-functional collaboration and conflict handling with concrete ownership.",
+            "Explains trade-offs and decisions in cross-functional collaboration and conflict handling with clear rationale."
+          ],
+          "anti_signals": [
+            "Works in silos and escalates conflict late",
+            "Prioritizes local wins over shared outcomes"
+          ],
+          "typical_examples": [
+            "Resolved disagreement through evidence-based facilitation at ArtDirector_IC scope.",
+            "Built trust across design, PM, and engineering during delivery at ArtDirector_IC complexity."
+          ]
+        },
+        "DesignDirector_M": {
+          "signals": [
+            "Institutionalizes high-trust, high-performance culture; demonstrates cross-functional collaboration and conflict handling with concrete ownership.",
+            "Explains trade-offs and decisions in cross-functional collaboration and conflict handling with clear rationale."
+          ],
+          "anti_signals": [
+            "Works in silos and escalates conflict late",
+            "Prioritizes local wins over shared outcomes"
+          ],
+          "typical_examples": [
+            "Resolved disagreement through evidence-based facilitation at DesignDirector_M scope.",
+            "Built trust across design, PM, and engineering during delivery at DesignDirector_M complexity."
+          ]
+        }
+      }
+    },
+    "culture_learning": {
+      "display_name": "Culture: Learning",
+      "levels": {
+        "Junior": {
+          "signals": [
+            "Contributes positively when prompted; demonstrates feedback loops, reflection, and skill growth with concrete ownership.",
+            "Explains trade-offs and decisions in feedback loops, reflection, and skill growth with clear rationale."
+          ],
+          "anti_signals": [
+            "Rarely seeks feedback or retrospects decisions",
+            "Repeats mistakes without updating approach"
+          ],
+          "typical_examples": [
+            "Ran retrospectives and changed process based on insights at Junior scope.",
+            "Shared learnings that helped peers avoid repeated mistakes at Junior complexity."
+          ]
+        },
+        "Middle": {
+          "signals": [
+            "Proactively raises team standards; demonstrates feedback loops, reflection, and skill growth with concrete ownership.",
+            "Explains trade-offs and decisions in feedback loops, reflection, and skill growth with clear rationale."
+          ],
+          "anti_signals": [
+            "Rarely seeks feedback or retrospects decisions",
+            "Repeats mistakes without updating approach"
+          ],
+          "typical_examples": [
+            "Ran retrospectives and changed process based on insights at Middle scope.",
+            "Shared learnings that helped peers avoid repeated mistakes at Middle complexity."
+          ]
+        },
+        "Senior": {
+          "signals": [
+            "Sets behavioral norms through consistent example; demonstrates feedback loops, reflection, and skill growth with concrete ownership.",
+            "Explains trade-offs and decisions in feedback loops, reflection, and skill growth with clear rationale."
+          ],
+          "anti_signals": [
+            "Rarely seeks feedback or retrospects decisions",
+            "Repeats mistakes without updating approach"
+          ],
+          "typical_examples": [
+            "Ran retrospectives and changed process based on insights at Senior scope.",
+            "Shared learnings that helped peers avoid repeated mistakes at Senior complexity."
+          ]
+        },
+        "Lead_IC": {
+          "signals": [
+            "Raises quality bar org-wide through action; demonstrates feedback loops, reflection, and skill growth with concrete ownership.",
+            "Explains trade-offs and decisions in feedback loops, reflection, and skill growth with clear rationale."
+          ],
+          "anti_signals": [
+            "Rarely seeks feedback or retrospects decisions",
+            "Repeats mistakes without updating approach"
+          ],
+          "typical_examples": [
+            "Ran retrospectives and changed process based on insights at Lead_IC scope.",
+            "Shared learnings that helped peers avoid repeated mistakes at Lead_IC complexity."
+          ]
+        },
+        "Head_M": {
+          "signals": [
+            "Builds repeatable systems for culture and accountability; demonstrates feedback loops, reflection, and skill growth with concrete ownership.",
+            "Explains trade-offs and decisions in feedback loops, reflection, and skill growth with clear rationale."
+          ],
+          "anti_signals": [
+            "Rarely seeks feedback or retrospects decisions",
+            "Repeats mistakes without updating approach"
+          ],
+          "typical_examples": [
+            "Ran retrospectives and changed process based on insights at Head_M scope.",
+            "Shared learnings that helped peers avoid repeated mistakes at Head_M complexity."
+          ]
+        },
+        "ArtDirector_IC": {
+          "signals": [
+            "Embeds ambitious creative standards in daily work; demonstrates feedback loops, reflection, and skill growth with concrete ownership.",
+            "Explains trade-offs and decisions in feedback loops, reflection, and skill growth with clear rationale."
+          ],
+          "anti_signals": [
+            "Rarely seeks feedback or retrospects decisions",
+            "Repeats mistakes without updating approach"
+          ],
+          "typical_examples": [
+            "Ran retrospectives and changed process based on insights at ArtDirector_IC scope.",
+            "Shared learnings that helped peers avoid repeated mistakes at ArtDirector_IC complexity."
+          ]
+        },
+        "DesignDirector_M": {
+          "signals": [
+            "Institutionalizes high-trust, high-performance culture; demonstrates feedback loops, reflection, and skill growth with concrete ownership.",
+            "Explains trade-offs and decisions in feedback loops, reflection, and skill growth with clear rationale."
+          ],
+          "anti_signals": [
+            "Rarely seeks feedback or retrospects decisions",
+            "Repeats mistakes without updating approach"
+          ],
+          "typical_examples": [
+            "Ran retrospectives and changed process based on insights at DesignDirector_M scope.",
+            "Shared learnings that helped peers avoid repeated mistakes at DesignDirector_M complexity."
+          ]
+        }
+      }
+    },
+    "culture_integrity_safety": {
+      "display_name": "Culture: Integrity & Safety",
+      "levels": {
+        "Junior": {
+          "signals": [
+            "Contributes positively when prompted; demonstrates ethical choices, inclusion, and psychological safety with concrete ownership.",
+            "Explains trade-offs and decisions in ethical choices, inclusion, and psychological safety with clear rationale."
+          ],
+          "anti_signals": [
+            "Compromises user trust for speed",
+            "Does not address exclusionary or unsafe behaviors"
+          ],
+          "typical_examples": [
+            "Advocated for accessibility/privacy despite schedule pressure at Junior scope.",
+            "Created space for dissenting voices in decision-making at Junior complexity."
+          ]
+        },
+        "Middle": {
+          "signals": [
+            "Proactively raises team standards; demonstrates ethical choices, inclusion, and psychological safety with concrete ownership.",
+            "Explains trade-offs and decisions in ethical choices, inclusion, and psychological safety with clear rationale."
+          ],
+          "anti_signals": [
+            "Compromises user trust for speed",
+            "Does not address exclusionary or unsafe behaviors"
+          ],
+          "typical_examples": [
+            "Advocated for accessibility/privacy despite schedule pressure at Middle scope.",
+            "Created space for dissenting voices in decision-making at Middle complexity."
+          ]
+        },
+        "Senior": {
+          "signals": [
+            "Sets behavioral norms through consistent example; demonstrates ethical choices, inclusion, and psychological safety with concrete ownership.",
+            "Explains trade-offs and decisions in ethical choices, inclusion, and psychological safety with clear rationale."
+          ],
+          "anti_signals": [
+            "Compromises user trust for speed",
+            "Does not address exclusionary or unsafe behaviors"
+          ],
+          "typical_examples": [
+            "Advocated for accessibility/privacy despite schedule pressure at Senior scope.",
+            "Created space for dissenting voices in decision-making at Senior complexity."
+          ]
+        },
+        "Lead_IC": {
+          "signals": [
+            "Raises quality bar org-wide through action; demonstrates ethical choices, inclusion, and psychological safety with concrete ownership.",
+            "Explains trade-offs and decisions in ethical choices, inclusion, and psychological safety with clear rationale."
+          ],
+          "anti_signals": [
+            "Compromises user trust for speed",
+            "Does not address exclusionary or unsafe behaviors"
+          ],
+          "typical_examples": [
+            "Advocated for accessibility/privacy despite schedule pressure at Lead_IC scope.",
+            "Created space for dissenting voices in decision-making at Lead_IC complexity."
+          ]
+        },
+        "Head_M": {
+          "signals": [
+            "Builds repeatable systems for culture and accountability; demonstrates ethical choices, inclusion, and psychological safety with concrete ownership.",
+            "Explains trade-offs and decisions in ethical choices, inclusion, and psychological safety with clear rationale."
+          ],
+          "anti_signals": [
+            "Compromises user trust for speed",
+            "Does not address exclusionary or unsafe behaviors"
+          ],
+          "typical_examples": [
+            "Advocated for accessibility/privacy despite schedule pressure at Head_M scope.",
+            "Created space for dissenting voices in decision-making at Head_M complexity."
+          ]
+        },
+        "ArtDirector_IC": {
+          "signals": [
+            "Embeds ambitious creative standards in daily work; demonstrates ethical choices, inclusion, and psychological safety with concrete ownership.",
+            "Explains trade-offs and decisions in ethical choices, inclusion, and psychological safety with clear rationale."
+          ],
+          "anti_signals": [
+            "Compromises user trust for speed",
+            "Does not address exclusionary or unsafe behaviors"
+          ],
+          "typical_examples": [
+            "Advocated for accessibility/privacy despite schedule pressure at ArtDirector_IC scope.",
+            "Created space for dissenting voices in decision-making at ArtDirector_IC complexity."
+          ]
+        },
+        "DesignDirector_M": {
+          "signals": [
+            "Institutionalizes high-trust, high-performance culture; demonstrates ethical choices, inclusion, and psychological safety with concrete ownership.",
+            "Explains trade-offs and decisions in ethical choices, inclusion, and psychological safety with clear rationale."
+          ],
+          "anti_signals": [
+            "Compromises user trust for speed",
+            "Does not address exclusionary or unsafe behaviors"
+          ],
+          "typical_examples": [
+            "Advocated for accessibility/privacy despite schedule pressure at DesignDirector_M scope.",
+            "Created space for dissenting voices in decision-making at DesignDirector_M complexity."
+          ]
+        }
+      }
+    }
+  },
+  "dimension_weights": {
+    "IC": {
+      "scope_responsibility": 0.08,
+      "impact": 0.1,
+      "uncertainty_tolerance": 0.09,
+      "planning_horizon": 0.06,
+      "hard_craft": 0.13,
+      "hard_systems": 0.11,
+      "hard_product_business": 0.11,
+      "soft_communication_influence": 0.09,
+      "management": 0.03,
+      "culture_ownership": 0.04,
+      "culture_proactivity": 0.04,
+      "culture_quality_bar": 0.04,
+      "culture_collaboration": 0.04,
+      "culture_learning": 0.02,
+      "culture_integrity_safety": 0.02
+    },
+    "M": {
+      "scope_responsibility": 0.08,
+      "impact": 0.1,
+      "uncertainty_tolerance": 0.09,
+      "planning_horizon": 0.08,
+      "hard_craft": 0.07,
+      "hard_systems": 0.07,
+      "hard_product_business": 0.09,
+      "soft_communication_influence": 0.1,
+      "management": 0.15,
+      "culture_ownership": 0.04,
+      "culture_proactivity": 0.04,
+      "culture_quality_bar": 0.03,
+      "culture_collaboration": 0.03,
+      "culture_learning": 0.02,
+      "culture_integrity_safety": 0.01
+    }
+  }
+}
