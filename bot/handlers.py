@@ -57,6 +57,17 @@ def _latest_assistant_dimension(turns: list[Turn]) -> str | None:
     return None
 
 
+def _build_warmup_question(index: int, profile: dict[str, Any]) -> str:
+    if index <= 0:
+        return "С какого контекста начнем: какая у вас сейчас роль и за что вы отвечаете?"
+    if index == 1:
+        return "Понял. А в каком продукт-домене вы работаете и кто ваши ключевые пользователи?"
+    if index == 2:
+        return "Отлично. Сколько у вас лет опыта в продуктовом дизайне и куда хотите расти дальше: IC или менеджмент?"
+
+    return "Продолжим: расскажите о вашем текущем контексте работы чуть подробнее."
+
+
 async def legacy_command_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if update.effective_message is None:
         return
@@ -74,19 +85,12 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     active_session = db.get_active_session(update.effective_user.id)
 
     welcome_lines = [
-        "Привет! Я провожу живой self-assessment для продуктовых дизайнеров по матрице компетенций v2.0.",
-        "Формат интервью: один вопрос за раз, с адаптацией под ваши ответы и контекст.",
-        "В финале вы получите:",
-        "1) рекомендованный грейд,",
-        "2) баллы по слоям и evidence,",
-        "3) сильные стороны и зоны роста,",
-        "4) дорожную карту на следующий уровень.",
-        "",
-        "Приватность: данные хранятся локально в SQLite и JSON-экспортах.",
+        "Формат: живой диалог 1 вопрос за раз. Я подстраиваюсь под ваши ответы и контекст.",
+        "Старайтесь отвечать на реальных кейсах: что делали лично вы и какой был результат.",
     ]
 
     if active_session:
-        welcome_lines.append("\nУ вас уже есть активная сессия. Используйте /status для продолжения или /reset для перезапуска.")
+        welcome_lines.append("У вас уже есть активная сессия. Используйте /status для продолжения или /reset для перезапуска.")
 
     keyboard = InlineKeyboardMarkup(
         [[InlineKeyboardButton("Начать ассессмент", callback_data="start_assessment")]]
@@ -100,11 +104,11 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         return
     await update.effective_message.reply_text(
         "Команды:\n"
-        "/start - старт и кнопка запуска ассессмента\n"
-        "/reset - сброс текущей активной сессии\n"
-        "/status - прогресс по слоям и примерная оставшаяся длина\n"
-        "/result - итоговый отчет (если ассессмент завершен)\n"
-        "/help - подсказка по командам"
+        "/start - запуск и кнопка старта\n"
+        "/reset - сброс активной сессии\n"
+        "/status - текущий прогресс\n"
+        "/result - итоговый отчет\n"
+        "/help - подсказка"
     )
 
 
@@ -219,13 +223,8 @@ async def _start_assessment(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
     session = db.create_session(update.effective_user.id, max_questions=max_questions)
 
-    intro = (
-        "Отлично, начинаем. Сначала 3 коротких вводных вопроса, затем живое адаптивное интервью.\n"
-        "Старайтесь отвечать на примерах: контекст, ваша роль, действия и результат."
-    )
-    await update.effective_message.reply_text(intro)
-
-    first_q = WARMUP_QUESTIONS[0]
+    await update.effective_message.reply_text("Поехали.")
+    first_q = _build_warmup_question(0, profile={})
     db.append_turn(session.id, role="assistant", content=first_q, dimension=None)
     await update.effective_message.reply_text(first_q)
 
@@ -319,7 +318,7 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
 
     session = db.get_active_session(update.effective_user.id)
     if session is None:
-        await update.effective_message.reply_text("Активной сессии нет. Напишите /start и нажмите «Начать ассессмент». ")
+        await update.effective_message.reply_text("Активной сессии нет. Напишите /start и нажмите «Начать ассессмент».")
         return
 
     try:
@@ -338,12 +337,13 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
                 raise RuntimeError("Session disappeared")
 
             if session.warmup_index < len(WARMUP_QUESTIONS):
-                next_warmup = WARMUP_QUESTIONS[session.warmup_index]
+                profile = dialogue.extract_profile(session)
+                next_warmup = _build_warmup_question(session.warmup_index, profile)
                 db.append_turn(session.id, role="assistant", content=next_warmup, dimension=None)
                 await update.effective_message.reply_text(next_warmup)
                 return
 
-            await update.effective_message.reply_text("Отлично, переходим к основному интервью по компетенциям.")
+            await update.effective_message.reply_text("Контекст понял, идем в основные вопросы.")
             await _ask_first_assessment_question(update, context, session)
             return
 

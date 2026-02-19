@@ -103,6 +103,33 @@ class OpenAIService:
         except json.JSONDecodeError as exc:
             raise OpenAIServiceError(f"Model output JSON parse failed: {exc}") from exc
 
+    @staticmethod
+    def _extract_parsed_json(response: Any) -> dict[str, Any] | None:
+        output_parsed = getattr(response, "output_parsed", None)
+        if isinstance(output_parsed, dict):
+            return output_parsed
+
+        output = getattr(response, "output", None)
+        if output:
+            for item in output:
+                for content in getattr(item, "content", []) or []:
+                    parsed = getattr(content, "parsed", None)
+                    if isinstance(parsed, dict):
+                        return parsed
+
+                    if isinstance(content, dict):
+                        parsed_dict = content.get("parsed")
+                        if isinstance(parsed_dict, dict):
+                            return parsed_dict
+
+        return None
+
+    def _extract_payload(self, response: Any) -> dict[str, Any]:
+        parsed = self._extract_parsed_json(response)
+        if parsed is not None:
+            return parsed
+        return self._extract_json(self._extract_text(response))
+
     async def generate_next_question(
         self,
         target_dimension: str,
@@ -117,7 +144,8 @@ class OpenAIService:
             "required": ["question", "follow_up_probe"],
             "properties": {
                 "question": {"type": "string"},
-                "follow_up_probe": {"type": ["string", "null"]},
+                # Nullable unions can fail on some strict-schema backends, so empty string means no probe.
+                "follow_up_probe": {"type": "string"},
             },
         }
 
@@ -139,6 +167,7 @@ class OpenAIService:
                 "question_max_words": 22,
                 "one_question_only": True,
                 "follow_up_probe_optional": True,
+                "follow_up_probe_empty_string_if_not_needed": True,
                 "no_scoring": True,
                 "language": "ru",
                 "style": "human_interviewer",
@@ -168,10 +197,10 @@ class OpenAIService:
             temperature=0.7,
         )
 
-        payload = self._extract_json(self._extract_text(response))
+        payload = self._extract_payload(response)
         question = str(payload.get("question", "")).strip()
-        probe = payload.get("follow_up_probe")
-        follow_up_probe = str(probe).strip() if isinstance(probe, str) and probe.strip() else None
+        probe = str(payload.get("follow_up_probe", "")).strip()
+        follow_up_probe = probe if probe else None
 
         if not question:
             raise OpenAIServiceError("Model returned an empty question")
@@ -234,7 +263,7 @@ class OpenAIService:
             temperature=0.3,
         )
 
-        payload = self._extract_json(self._extract_text(response))
+        payload = self._extract_payload(response)
         updated_summary = str(payload.get("updated_summary", "")).strip()
         if not updated_summary:
             raise OpenAIServiceError("Model returned an empty summary")
@@ -380,5 +409,5 @@ class OpenAIService:
             temperature=0.2,
         )
 
-        payload = self._extract_json(self._extract_text(response))
+        payload = self._extract_payload(response)
         return payload

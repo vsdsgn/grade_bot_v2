@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 from dataclasses import dataclass
 from typing import Any
@@ -8,7 +9,9 @@ from typing import Any
 from .constants import DIMENSION_DISPLAY, HIGH_VARIANCE_PRIORITY
 from .matrix import required_dimensions_for_track
 from .models import NextQuestion, Session, Turn
-from .openai_service import OpenAIService
+from .openai_service import OpenAIService, OpenAIServiceError
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(slots=True)
@@ -183,6 +186,34 @@ class DialogueManager:
             confidence_estimate=session.confidence_estimate,
         )
 
+    @staticmethod
+    def _fallback_question_for_dimension(target_dimension: str) -> NextQuestion:
+        fallback_questions = {
+            "scope_responsibility": "Расскажите о задаче, где вы лично вели работу от постановки до результата. Какой был масштаб?",
+            "impact": "Приведите пример решения, которое заметно повлияло на метрику или поведение пользователей.",
+            "uncertainty_tolerance": "Вспомните ситуацию с высокой неопределенностью. Как вы приняли решение и на что опирались?",
+            "planning_horizon": "Как вы планируете работу на несколько месяцев вперед и что делаете, когда приоритеты резко меняются?",
+            "hard_craft": "Опишите кейс, где вы значительно улучшили UX/визуальное качество. Что именно сделали вы?",
+            "hard_systems": "Был ли у вас опыт масштабирования решений через дизайн-систему? Что получилось изменить?",
+            "hard_product_business": "Расскажите о случае, когда дизайн-решение пришлось балансировать с бизнес-целями и метриками.",
+            "soft_communication_influence": "Вспомните сложный момент выравнивания с PM/разработкой. Как вы повлияли на решение?",
+            "management": "Если вы руководите, как вы развиваете команду и принимаете кадровые/приоритетные решения?",
+            "culture_ownership": "Когда в последний раз вы взяли на себя проблему, которая формально была не вашей зоной?",
+            "culture_proactivity": "Приведите пример, когда вы сами инициировали улучшение процесса или качества до того, как вас попросили.",
+            "culture_quality_bar": "Как вы удерживаете высокую планку качества в условиях дедлайнов и ограничений?",
+            "culture_collaboration": "Расскажите о конфликте между функциями и как вы помогли прийти к рабочему решению.",
+            "culture_learning": "Как вы извлекаете уроки из ошибок и превращаете их в рабочие изменения команды?",
+            "culture_integrity_safety": "Был ли кейс, когда пришлось отстоять этичное или безопасное для пользователя решение?",
+        }
+
+        return NextQuestion(
+            question=fallback_questions.get(
+                target_dimension,
+                "Расскажите про недавний сложный кейс: что сделали лично вы и к какому результату пришли?",
+            ),
+            follow_up_probe="Если можно, добавьте контекст, вашу личную роль и измеримый результат.",
+        )
+
     async def generate_assessment_question(
         self,
         session: Session,
@@ -194,13 +225,21 @@ class DialogueManager:
         dimension_matrix = self.matrix["dimensions"][target_dimension]
         recent_turns = self.build_recent_turns_payload(turns, limit=10)
 
-        next_question = await self.openai_service.generate_next_question(
-            target_dimension=target_dimension,
-            profile=profile,
-            evidence_summary=session.evidence_summary,
-            recent_turns=recent_turns,
-            dimension_matrix=dimension_matrix,
-        )
+        try:
+            next_question = await self.openai_service.generate_next_question(
+                target_dimension=target_dimension,
+                profile=profile,
+                evidence_summary=session.evidence_summary,
+                recent_turns=recent_turns,
+                dimension_matrix=dimension_matrix,
+            )
+        except OpenAIServiceError as exc:
+            logger.warning(
+                "Question generation failed for %s, using fallback: %s",
+                target_dimension,
+                exc,
+            )
+            next_question = self._fallback_question_for_dimension(target_dimension)
 
         return target_dimension, next_question
 
@@ -222,10 +261,14 @@ class DialogueManager:
             for turn in unsummarized_turns
         ]
 
-        updated_summary = await self.openai_service.summarize_evidence(
-            existing_summary=session.evidence_summary,
-            turns_to_summarize=payload,
-        )
+        try:
+            updated_summary = await self.openai_service.summarize_evidence(
+                existing_summary=session.evidence_summary,
+                turns_to_summarize=payload,
+            )
+        except OpenAIServiceError as exc:
+            logger.warning("Evidence summary refresh skipped due to model error: %s", exc)
+            return None
 
         return updated_summary, len(turns)
 
