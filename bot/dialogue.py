@@ -189,30 +189,87 @@ class DialogueManager:
     @staticmethod
     def _fallback_question_for_dimension(target_dimension: str) -> NextQuestion:
         fallback_questions = {
-            "scope_responsibility": "Расскажите о задаче, где вы лично вели работу от постановки до результата. Какой был масштаб?",
-            "impact": "Приведите пример решения, которое заметно повлияло на метрику или поведение пользователей.",
-            "uncertainty_tolerance": "Вспомните ситуацию с высокой неопределенностью. Как вы приняли решение и на что опирались?",
-            "planning_horizon": "Как вы планируете работу на несколько месяцев вперед и что делаете, когда приоритеты резко меняются?",
-            "hard_craft": "Опишите кейс, где вы значительно улучшили UX/визуальное качество. Что именно сделали вы?",
-            "hard_systems": "Был ли у вас опыт масштабирования решений через дизайн-систему? Что получилось изменить?",
-            "hard_product_business": "Расскажите о случае, когда дизайн-решение пришлось балансировать с бизнес-целями и метриками.",
-            "soft_communication_influence": "Вспомните сложный момент выравнивания с PM/разработкой. Как вы повлияли на решение?",
-            "management": "Если вы руководите, как вы развиваете команду и принимаете кадровые/приоритетные решения?",
-            "culture_ownership": "Когда в последний раз вы взяли на себя проблему, которая формально была не вашей зоной?",
-            "culture_proactivity": "Приведите пример, когда вы сами инициировали улучшение процесса или качества до того, как вас попросили.",
-            "culture_quality_bar": "Как вы удерживаете высокую планку качества в условиях дедлайнов и ограничений?",
-            "culture_collaboration": "Расскажите о конфликте между функциями и как вы помогли прийти к рабочему решению.",
-            "culture_learning": "Как вы извлекаете уроки из ошибок и превращаете их в рабочие изменения команды?",
-            "culture_integrity_safety": "Был ли кейс, когда пришлось отстоять этичное или безопасное для пользователя решение?",
+            "scope_responsibility": "Какая задача у вас была самой масштабной за последний год?",
+            "impact": "Какое ваше решение сильнее всего повлияло на результат продукта?",
+            "uncertainty_tolerance": "Как вы принимали решение в ситуации, где данных не хватало?",
+            "planning_horizon": "Как вы обычно планируете работу хотя бы на квартал вперед?",
+            "hard_craft": "Какой кейс лучше всего показывает ваш уровень дизайн-крафта?",
+            "hard_systems": "Что вы улучшали в дизайн-системе лично своими руками?",
+            "hard_product_business": "Когда вам приходилось выбирать между UX и бизнес-целями?",
+            "soft_communication_influence": "Как вы убеждали команду, когда мнения по решению расходились?",
+            "management": "Как вы развиваете дизайнеров в своей команде?",
+            "culture_ownership": "Когда вы брали ответственность за проблему вне своей формальной зоны?",
+            "culture_proactivity": "Что вы улучшили в процессе по собственной инициативе?",
+            "culture_quality_bar": "Как вы удерживаете качество, когда сроки горят?",
+            "culture_collaboration": "Как вы разруливали сложный конфликт между функциями?",
+            "culture_learning": "Как вы превращаете ошибки в рабочие изменения команды?",
+            "culture_integrity_safety": "Когда вы отстаивали решение в пользу этики или безопасности пользователя?",
         }
 
         return NextQuestion(
             question=fallback_questions.get(
                 target_dimension,
-                "Расскажите про недавний сложный кейс: что сделали лично вы и к какому результату пришли?",
+                "Расскажите о недавнем сложном кейсе и вашей роли в нем.",
             ),
-            follow_up_probe="Если можно, добавьте контекст, вашу личную роль и измеримый результат.",
+            follow_up_probe="Можете добавить контекст и измеримый результат?",
         )
+
+    @staticmethod
+    def _normalize_text_line(text: str) -> str:
+        return " ".join(text.strip().split())
+
+    @classmethod
+    def _is_complex_question(cls, question: str) -> bool:
+        q = cls._normalize_text_line(question)
+        if not q:
+            return True
+
+        word_count = len(q.replace("?", "").split())
+        if word_count > 16:
+            return True
+
+        # More than one question marker or heavy separators usually means multi-part structure.
+        if q.count("?") > 1:
+            return True
+        if q.count(",") >= 2 or ";" in q:
+            return True
+
+        return False
+
+    @classmethod
+    def _sanitize_question(cls, question: str, target_dimension: str) -> str:
+        q = cls._normalize_text_line(question)
+
+        # Keep only the first sentence/question.
+        if "?" in q:
+            q = q.split("?", 1)[0].strip()
+        if not q:
+            return cls._fallback_question_for_dimension(target_dimension).question
+
+        if cls._is_complex_question(q):
+            return cls._fallback_question_for_dimension(target_dimension).question
+
+        if not q.endswith("?"):
+            q = q.rstrip(".!") + "?"
+
+        return q
+
+    @classmethod
+    def _sanitize_probe(cls, probe: str | None) -> str | None:
+        if not probe:
+            return None
+        p = cls._normalize_text_line(probe)
+        if not p:
+            return None
+
+        words = p.split()
+        if len(words) > 14:
+            p = " ".join(words[:14]).rstrip(".!") + "?"
+
+        if not p.endswith("?"):
+            p = p.rstrip(".!") + "?"
+
+        return p
 
     async def generate_assessment_question(
         self,
@@ -226,7 +283,7 @@ class DialogueManager:
         recent_turns = self.build_recent_turns_payload(turns, limit=10)
 
         try:
-            next_question = await self.openai_service.generate_next_question(
+            raw_question = await self.openai_service.generate_next_question(
                 target_dimension=target_dimension,
                 profile=profile,
                 evidence_summary=session.evidence_summary,
@@ -239,9 +296,17 @@ class DialogueManager:
                 target_dimension,
                 exc,
             )
-            next_question = self._fallback_question_for_dimension(target_dimension)
+            return target_dimension, self._fallback_question_for_dimension(target_dimension)
 
-        return target_dimension, next_question
+        question = self._sanitize_question(raw_question.question, target_dimension)
+        probe = self._sanitize_probe(raw_question.follow_up_probe)
+
+        if self._is_complex_question(question):
+            fallback = self._fallback_question_for_dimension(target_dimension)
+            question = fallback.question
+            probe = probe or fallback.follow_up_probe
+
+        return target_dimension, NextQuestion(question=question, follow_up_probe=probe)
 
     async def refresh_evidence_summary_if_needed(
         self,

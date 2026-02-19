@@ -81,6 +81,7 @@ class OpenAIService:
                             maybe_value = maybe_text.get("value")
                             if isinstance(maybe_value, str) and maybe_value.strip():
                                 parts.append(maybe_value.strip())
+
         if parts:
             return "\n".join(parts)
 
@@ -144,16 +145,16 @@ class OpenAIService:
             "required": ["question", "follow_up_probe"],
             "properties": {
                 "question": {"type": "string"},
-                # Nullable unions can fail on some strict-schema backends, so empty string means no probe.
+                # Empty string means no probe.
                 "follow_up_probe": {"type": "string"},
             },
         }
 
         system_prompt = (
             "Ты опытный интервьюер по продуктовому дизайну. "
-            "Веди разговор как живой диалог на русском языке: один вопрос за раз, коротко и по делу. "
-            "Опирайся на контекст прошлых ответов кандидата, чтобы вопрос звучал естественно и адаптивно. "
-            "Не превращай диалог в анкету и не задавай несколько вопросов в одном сообщении."
+            "Веди разговор как живой диалог на русском языке. "
+            "Сделай вопрос простым и коротким: одна мысль, одно предложение, одна точка фокуса. "
+            "Не задавай сложных, составных и перечислительных вопросов."
         )
 
         user_prompt = {
@@ -164,13 +165,15 @@ class OpenAIService:
             "recent_turns": recent_turns,
             "dimension_definition": dimension_matrix,
             "constraints": {
-                "question_max_words": 22,
+                "question_max_words": 14,
                 "one_question_only": True,
                 "follow_up_probe_optional": True,
                 "follow_up_probe_empty_string_if_not_needed": True,
                 "no_scoring": True,
                 "language": "ru",
-                "style": "human_interviewer",
+                "style": "natural_human_dialogue",
+                "no_multi_part_question": True,
+                "no_complex_clauses": True,
             },
         }
 
@@ -194,7 +197,7 @@ class OpenAIService:
                     "strict": True,
                 }
             },
-            temperature=0.7,
+            temperature=0.65,
         )
 
         payload = self._extract_payload(response)
@@ -226,7 +229,7 @@ class OpenAIService:
 
         system_prompt = (
             "Ты сжимаешь доказательства из интервью в рабочее summary для финального грейдинга. "
-            "Пиши на русском, сохраняй факты: результат, масштаб, личную роль, ограничения и короткие цитаты."
+            "Пиши на русском, сохраняй только факты: результат, масштаб, личную роль и ограничения."
         )
 
         user_prompt = {
@@ -260,7 +263,7 @@ class OpenAIService:
                     "strict": True,
                 }
             },
-            temperature=0.3,
+            temperature=0.25,
         )
 
         payload = self._extract_payload(response)
@@ -313,13 +316,11 @@ class OpenAIService:
                 "dimension_scores": {
                     "type": "object",
                     "additionalProperties": False,
-                    "required": DIMENSIONS,
                     "properties": dimension_score_properties,
                 },
                 "evidence": {
                     "type": "object",
                     "additionalProperties": False,
-                    "required": DIMENSIONS,
                     "properties": evidence_properties,
                 },
                 "strengths": {
@@ -337,7 +338,6 @@ class OpenAIService:
                 "next_level_targets": {
                     "type": "object",
                     "additionalProperties": False,
-                    "required": DIMENSIONS,
                     "properties": target_properties,
                 },
                 "recommended_actions": {

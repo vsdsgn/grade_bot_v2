@@ -59,13 +59,13 @@ def _latest_assistant_dimension(turns: list[Turn]) -> str | None:
 
 def _build_warmup_question(index: int, profile: dict[str, Any]) -> str:
     if index <= 0:
-        return "С какого контекста начнем: какая у вас сейчас роль и за что вы отвечаете?"
+        return "Начнем просто: чем вы сейчас занимаетесь в роли дизайнера?"
     if index == 1:
-        return "Понял. А в каком продукт-домене вы работаете и кто ваши ключевые пользователи?"
+        return "А какой у вас продукт и кто его основные пользователи?"
     if index == 2:
-        return "Отлично. Сколько у вас лет опыта в продуктовом дизайне и куда хотите расти дальше: IC или менеджмент?"
+        return "Сколько у вас опыта и куда хотите расти дальше: IC или менеджмент?"
 
-    return "Продолжим: расскажите о вашем текущем контексте работы чуть подробнее."
+    return "Добавьте, пожалуйста, немного контекста по текущей роли."
 
 
 async def legacy_command_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -85,8 +85,8 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     active_session = db.get_active_session(update.effective_user.id)
 
     welcome_lines = [
-        "Формат: живой диалог 1 вопрос за раз. Я подстраиваюсь под ваши ответы и контекст.",
-        "Старайтесь отвечать на реальных кейсах: что делали лично вы и какой был результат.",
+        "Формат: живой диалог, один короткий вопрос за раз.",
+        "Отвечайте на примерах: что делали лично вы и какой был результат.",
     ]
 
     if active_session:
@@ -287,8 +287,15 @@ async def _finalize_assessment(
     turns = db.list_turns(session.id)
     profile = dialogue.extract_profile(session)
 
-    grade = await grader.run_grade(session=session, profile=profile, turns=turns)
-    artifacts = reporter.export_report(session=session, profile=profile, grade=grade)
+    try:
+        grade = await grader.run_grade(session=session, profile=profile, turns=turns)
+        artifacts = reporter.export_report(session=session, profile=profile, grade=grade)
+    except Exception as exc:
+        logger.exception("Final report generation failed: %s", exc)
+        await update.effective_message.reply_text(
+            "Не удалось собрать итоговый отчет с первого раза. Напишите любое сообщение, и я повторю финализацию."
+        )
+        return
 
     db.mark_completed(
         session_id=session.id,
@@ -343,7 +350,7 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
                 await update.effective_message.reply_text(next_warmup)
                 return
 
-            await update.effective_message.reply_text("Контекст понял, идем в основные вопросы.")
+            await update.effective_message.reply_text("Понял контекст. Переходим к основным вопросам.")
             await _ask_first_assessment_question(update, context, session)
             return
 
