@@ -38,8 +38,8 @@ class ReportBuilder:
         return milestones
 
     def build_markdown(self, grade: dict[str, Any]) -> str:
-        overall_level = grade.get("overall_level", "Unknown")
-        track = grade.get("track", "Unknown")
+        overall_level = grade.get("overall_level", "Неизвестно")
+        track = grade.get("track", "Неизвестно")
         confidence = float(grade.get("confidence", 0.0))
         dimension_scores = grade.get("dimension_scores", {})
         evidence = grade.get("evidence", {})
@@ -49,52 +49,53 @@ class ReportBuilder:
         learning = grade.get("recommended_learning", [])
         next_targets = grade.get("next_level_targets", {})
 
+        track_display = "IC (индивидуальный вклад)" if track == "IC" else ("M (менеджмент)" if track == "M" else str(track))
         milestones = self._roadmap_milestones(dimension_scores, next_targets)
 
         lines: list[str] = []
-        lines.append("## Product Designer Self-Assessment Report")
+        lines.append("## Отчет по self-assessment продуктового дизайнера")
         lines.append("")
-        lines.append(f"**Suggested level:** {overall_level}")
-        lines.append(f"**Track:** {track}")
-        lines.append(f"**Confidence:** {confidence:.2f}")
+        lines.append(f"**Рекомендованный уровень:** {overall_level}")
+        lines.append(f"**Трек:** {track_display}")
+        lines.append(f"**Уверенность оценки:** {confidence:.2f}")
         lines.append("")
-        lines.append("### Per-layer scores")
+        lines.append("### Баллы по слоям")
         lines.extend(self._fmt_dimension_scores(dimension_scores))
         lines.append("")
 
-        lines.append("### Evidence snippets")
+        lines.append("### Evidence (фрагменты ответов)")
         for dim, snippets in evidence.items():
             title = DIMENSION_DISPLAY.get(dim, dim)
             if snippets:
                 formatted = "; ".join(f'"{s}"' for s in snippets[:2])
             else:
-                formatted = "No direct evidence captured"
+                formatted = "Прямых evidence пока нет"
             lines.append(f"- {title}: {formatted}")
         lines.append("")
 
-        lines.append("### Strengths")
+        lines.append("### Сильные стороны")
         for item in strengths[:5]:
             lines.append(f"- {item}")
         lines.append("")
 
-        lines.append("### Growth areas")
+        lines.append("### Зоны роста")
         for item in growth_areas[:5]:
             lines.append(f"- {item}")
         lines.append("")
 
-        lines.append("### Next-step recommendations")
+        lines.append("### Рекомендованные следующие шаги")
         for item in actions[:8]:
             lines.append(f"- {item}")
         lines.append("")
 
-        lines.append("### Next level roadmap (3 milestones)")
+        lines.append("### Roadmap на следующий уровень (3 вехи)")
         for i, (title, target) in enumerate(milestones, start=1):
             lines.append(f"{i}. {title}: {target}")
         lines.append("")
 
-        lines.append("### Suggested learning")
+        lines.append("### Рекомендуемое обучение")
         for item in learning[:10]:
-            title = item.get("title", "Resource")
+            title = item.get("title", "Ресурс")
             why = item.get("why", "")
             lines.append(f"- {title}: {why}")
 

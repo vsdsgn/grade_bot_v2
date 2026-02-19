@@ -68,13 +68,11 @@ class OpenAIService:
                         parts.append(text.strip())
                         continue
 
-                    # Some SDK payload variants expose text as an object.
                     text_value = getattr(text, "value", None)
                     if isinstance(text_value, str) and text_value.strip():
                         parts.append(text_value.strip())
                         continue
 
-                    # Defensive path for dict-like content.
                     if isinstance(content, dict):
                         maybe_text = content.get("text")
                         if isinstance(maybe_text, str) and maybe_text.strip():
@@ -124,10 +122,10 @@ class OpenAIService:
         }
 
         system_prompt = (
-            "You are an experienced product design interviewer. "
-            "Ask one concise, open-ended question that helps assess the target competency dimension. "
-            "Use natural human tone and reference the candidate context when useful. "
-            "Do not ask multiple questions at once."
+            "Ты опытный интервьюер по продуктовому дизайну. "
+            "Веди разговор как живой диалог на русском языке: один вопрос за раз, коротко и по делу. "
+            "Опирайся на контекст прошлых ответов кандидата, чтобы вопрос звучал естественно и адаптивно. "
+            "Не превращай диалог в анкету и не задавай несколько вопросов в одном сообщении."
         )
 
         user_prompt = {
@@ -142,6 +140,8 @@ class OpenAIService:
                 "one_question_only": True,
                 "follow_up_probe_optional": True,
                 "no_scoring": True,
+                "language": "ru",
+                "style": "human_interviewer",
             },
         }
 
@@ -196,17 +196,18 @@ class OpenAIService:
         }
 
         system_prompt = (
-            "You compress interview evidence into a factual running summary for later grading. "
-            "Preserve concrete outcomes, ownership, scale, and short quote snippets where useful."
+            "Ты сжимаешь доказательства из интервью в рабочее summary для финального грейдинга. "
+            "Пиши на русском, сохраняй факты: результат, масштаб, личную роль, ограничения и короткие цитаты."
         )
 
         user_prompt = {
             "existing_summary": existing_summary,
             "new_turns": turns_to_summarize,
             "instructions": [
-                "Keep the summary compact and scannable.",
-                "Retain evidence linked to specific dimensions.",
-                "Do not invent details.",
+                "Сделай summary компактным и удобным для чтения.",
+                "Сохраняй привязку evidence к конкретным измерениям.",
+                "Ничего не выдумывай.",
+                "Пиши только на русском языке.",
             ],
         }
 
@@ -334,9 +335,11 @@ class OpenAIService:
         }
 
         system_prompt = (
-            "You are a calibrated design competency assessor using a matrix. "
-            "Infer likely level and track from evidence. Score each dimension 0-10 with evidence-backed judgment. "
-            "If evidence is weak, lower confidence and use growth areas."
+            "Ты калиброванный ассессор компетенций продуктовых дизайнеров по матрице. "
+            "Определи наиболее вероятный уровень и трек (IC/M), оцени каждое измерение по шкале 0-10. "
+            "Опирайся только на evidence из ответов кандидата. "
+            "Если данных мало, снижай confidence и отражай это в зонах роста. "
+            "Все текстовые поля верни только на русском языке."
         )
 
         user_prompt = {
@@ -350,6 +353,7 @@ class OpenAIService:
                 "grounded_in_user_answers_only": True,
                 "recommended_actions_count": "5-8",
                 "recommended_learning_count": "5-10",
+                "language": "ru",
             },
         }
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import sys
 
+from telegram import BotCommand, BotCommandScopeAllPrivateChats, BotCommandScopeDefault
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, MessageHandler, filters
 
 from bot.config import ConfigError, DB_PATH, EXPORTS_DIR, MATRIX_PATH, ensure_data_dirs, load_config
@@ -11,6 +12,7 @@ from bot.dialogue import DialogueManager
 from bot.grading import GradeEngine
 from bot.handlers import (
     help_command,
+    legacy_command_handler,
     reset_command,
     result_command,
     start_assessment_callback,
@@ -22,12 +24,41 @@ from bot.matrix import MatrixError, load_matrix
 from bot.openai_service import OpenAIService
 from bot.reporting import ReportBuilder
 
+logger = logging.getLogger(__name__)
+
 
 def configure_logging() -> None:
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
     )
+
+
+async def _post_init_set_commands(app: Application) -> None:
+    commands = [
+        BotCommand("start", "Запуск и старт ассессмента"),
+        BotCommand("status", "Текущий прогресс"),
+        BotCommand("result", "Итоговый отчет"),
+        BotCommand("reset", "Сбросить текущую сессию"),
+        BotCommand("help", "Справка по командам"),
+    ]
+
+    scopes = [BotCommandScopeDefault(), BotCommandScopeAllPrivateChats()]
+    language_codes: list[str | None] = [None, "ru", "en"]
+
+    for scope in scopes:
+        for language_code in language_codes:
+            await app.bot.delete_my_commands(
+                scope=scope,
+                language_code=language_code,
+            )
+            await app.bot.set_my_commands(
+                commands,
+                scope=scope,
+                language_code=language_code,
+            )
+
+    logger.info("Telegram command menu updated for default/private scopes")
 
 
 def build_application() -> Application:
@@ -43,7 +74,7 @@ def build_application() -> Application:
     grader = GradeEngine(matrix=matrix, openai_service=openai_service)
     reporter = ReportBuilder(exports_dir=EXPORTS_DIR)
 
-    app = Application.builder().token(config.telegram_bot_token).build()
+    app = Application.builder().token(config.telegram_bot_token).post_init(_post_init_set_commands).build()
 
     app.bot_data["db"] = db
     app.bot_data["dialogue"] = dialogue
@@ -58,6 +89,10 @@ def build_application() -> Application:
     app.add_handler(CommandHandler("reset", reset_command))
     app.add_handler(CommandHandler("status", status_command))
     app.add_handler(CommandHandler("result", result_command))
+
+    # Graceful migration of old command names if users still have them cached.
+    app.add_handler(CommandHandler(["grade", "feedback", "language"], legacy_command_handler))
+
     app.add_handler(CallbackQueryHandler(start_assessment_callback, pattern=r"^start_assessment$"))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, text_message_handler))
 

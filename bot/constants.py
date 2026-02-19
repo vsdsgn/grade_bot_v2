@@ -29,21 +29,21 @@ DIMENSIONS = [
 ]
 
 DIMENSION_DISPLAY = {
-    "scope_responsibility": "Scope & Responsibility",
-    "impact": "Impact",
-    "uncertainty_tolerance": "Decision-making Under Uncertainty",
-    "planning_horizon": "Planning Horizon",
-    "hard_craft": "Hard Skills: Craft",
-    "hard_systems": "Hard Skills: Systems",
-    "hard_product_business": "Hard Skills: Product & Business",
-    "soft_communication_influence": "Soft Skills: Communication & Influence",
-    "management": "Management",
-    "culture_ownership": "Culture: Ownership",
-    "culture_proactivity": "Culture: Proactivity",
-    "culture_quality_bar": "Culture: Quality Bar",
-    "culture_collaboration": "Culture: Collaboration",
-    "culture_learning": "Culture: Learning",
-    "culture_integrity_safety": "Culture: Integrity & Safety",
+    "scope_responsibility": "Зона ответственности и масштаб",
+    "impact": "Влияние на продукт и бизнес",
+    "uncertainty_tolerance": "Решения в условиях неопределенности",
+    "planning_horizon": "Горизонт планирования",
+    "hard_craft": "Хард-скиллы: мастерство (craft)",
+    "hard_systems": "Хард-скиллы: системность",
+    "hard_product_business": "Хард-скиллы: продукт и бизнес",
+    "soft_communication_influence": "Софт-скиллы: коммуникация и влияние",
+    "management": "Управление людьми и процессом",
+    "culture_ownership": "Культура: ownership",
+    "culture_proactivity": "Культура: проактивность",
+    "culture_quality_bar": "Культура: планка качества",
+    "culture_collaboration": "Культура: сотрудничество",
+    "culture_learning": "Культура: обучение",
+    "culture_integrity_safety": "Культура: этика и безопасность",
 }
 
 HIGH_VARIANCE_PRIORITY = [
@@ -54,9 +54,9 @@ HIGH_VARIANCE_PRIORITY = [
 ]
 
 WARMUP_QUESTIONS = [
-    "To ground us: what is your current role/title, and what team setup do you work in?",
-    "What product domain are you in, and who are your main users?",
-    "How many years of product design experience do you have, and are you aiming for an IC or manager path next?",
+    "Для начала: какая у вас сейчас роль и как устроена команда, в которой вы работаете?",
+    "В каком продукт-домене вы работаете и кто ваши основные пользователи?",
+    "Сколько у вас лет опыта в продуктовом дизайне и в какую сторону хотите расти дальше: IC или менеджмент?",
 ]
 
 PROFILE_FIELDS = [

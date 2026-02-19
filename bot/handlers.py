@@ -19,6 +19,9 @@ from .reporting import ReportBuilder
 logger = logging.getLogger(__name__)
 
 
+NEW_COMMANDS_HINT = "Используйте команды: /start, /status, /result, /reset, /help"
+
+
 def _service(context: ContextTypes.DEFAULT_TYPE, key: str) -> Any:
     return context.application.bot_data[key]
 
@@ -54,6 +57,15 @@ def _latest_assistant_dimension(turns: list[Turn]) -> str | None:
     return None
 
 
+async def legacy_command_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if update.effective_message is None:
+        return
+
+    await update.effective_message.reply_text(
+        "Эта команда больше не используется в версии v2.\n" + NEW_COMMANDS_HINT
+    )
+
+
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if update.effective_message is None or update.effective_user is None:
         return
@@ -62,18 +74,22 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     active_session = db.get_active_session(update.effective_user.id)
 
     welcome_lines = [
-        "Hi! I run a live product design self-assessment interview using competency matrix v2.0.",
-        "I will ask one open-ended question at a time, adapt to your answers, and then generate:",
-        "1) suggested level, 2) per-layer scores with evidence, 3) strengths/growth areas, 4) next-level roadmap.",
+        "Привет! Я провожу живой self-assessment для продуктовых дизайнеров по матрице компетенций v2.0.",
+        "Формат интервью: один вопрос за раз, с адаптацией под ваши ответы и контекст.",
+        "В финале вы получите:",
+        "1) рекомендованный грейд,",
+        "2) баллы по слоям и evidence,",
+        "3) сильные стороны и зоны роста,",
+        "4) дорожную карту на следующий уровень.",
         "",
-        "Privacy: your data stays local in SQLite and local JSON exports in /data/exports.",
+        "Приватность: данные хранятся локально в SQLite и JSON-экспортах.",
     ]
 
     if active_session:
-        welcome_lines.append("\nYou already have an active assessment. Use /status to continue or /reset to restart.")
+        welcome_lines.append("\nУ вас уже есть активная сессия. Используйте /status для продолжения или /reset для перезапуска.")
 
     keyboard = InlineKeyboardMarkup(
-        [[InlineKeyboardButton("Start assessment", callback_data="start_assessment")]]
+        [[InlineKeyboardButton("Начать ассессмент", callback_data="start_assessment")]]
     )
 
     await update.effective_message.reply_text("\n".join(welcome_lines), reply_markup=keyboard)
@@ -83,12 +99,12 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     if update.effective_message is None:
         return
     await update.effective_message.reply_text(
-        "Commands:\n"
-        "/start - show intro and start button\n"
-        "/reset - clear current in-progress session\n"
-        "/status - show progress and approximate remaining questions\n"
-        "/result - return final report (if completed)\n"
-        "/help - show this help"
+        "Команды:\n"
+        "/start - старт и кнопка запуска ассессмента\n"
+        "/reset - сброс текущей активной сессии\n"
+        "/status - прогресс по слоям и примерная оставшаяся длина\n"
+        "/result - итоговый отчет (если ассессмент завершен)\n"
+        "/help - подсказка по командам"
     )
 
 
@@ -103,9 +119,9 @@ async def reset_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     pending_probes.pop(update.effective_user.id, None)
 
     if deleted:
-        await update.effective_message.reply_text("Current session was reset. Use /start to begin again.")
+        await update.effective_message.reply_text("Текущая сессия сброшена. Напишите /start, чтобы начать заново.")
     else:
-        await update.effective_message.reply_text("No active session to reset.")
+        await update.effective_message.reply_text("Активная сессия не найдена.")
 
 
 async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -119,15 +135,14 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     if session is None:
         latest = db.get_latest_session(update.effective_user.id)
         if latest and latest.status == "completed":
-            await update.effective_message.reply_text("No active assessment. Your last one is completed; use /result to view it.")
+            await update.effective_message.reply_text("Сейчас активной сессии нет. Последняя уже завершена, посмотрите /result.")
         else:
-            await update.effective_message.reply_text("No active assessment. Use /start to begin.")
+            await update.effective_message.reply_text("Активной сессии нет. Напишите /start, чтобы начать.")
         return
 
     if session.warmup_index < len(WARMUP_QUESTIONS):
         await update.effective_message.reply_text(
-            f"Warm-up in progress: {session.warmup_index}/{len(WARMUP_QUESTIONS)} answered. "
-            "Please answer the current question."
+            f"Идет вводный блок: отвечено {session.warmup_index}/{len(WARMUP_QUESTIONS)}. Ответьте на текущий вопрос."
         )
         return
 
@@ -139,13 +154,13 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     approx_remaining_questions = max(0, session.max_questions - session.question_count)
 
     lines = [
-        f"Progress: {len(snapshot.covered_dimensions)}/{len(snapshot.required_dimensions)} layers covered ({snapshot.coverage_ratio:.0%}).",
-        f"Assessment questions asked: {session.question_count}/{session.max_questions}.",
-        f"Estimated confidence: {snapshot.confidence_estimate:.2f}.",
-        f"Approx questions remaining: {approx_remaining_questions}.",
+        f"Прогресс: покрыто {len(snapshot.covered_dimensions)}/{len(snapshot.required_dimensions)} слоев ({snapshot.coverage_ratio:.0%}).",
+        f"Задано вопросов: {session.question_count}/{session.max_questions}.",
+        f"Оценка уверенности: {snapshot.confidence_estimate:.2f}.",
+        f"Ориентировочно осталось вопросов: {approx_remaining_questions}.",
         "",
-        f"Covered: {', '.join(covered_names) if covered_names else 'none yet'}",
-        f"Remaining focus: {', '.join(remaining_names[:5]) if remaining_names else 'finalizing'}",
+        f"Уже покрыто: {', '.join(covered_names) if covered_names else 'пока нет'}",
+        f"Дальше фокус: {', '.join(remaining_names[:5]) if remaining_names else 'финализация отчета'}",
     ]
     await update.effective_message.reply_text("\n".join(lines))
 
@@ -160,7 +175,7 @@ async def result_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     if active is not None:
         if active.warmup_index < len(WARMUP_QUESTIONS):
             await update.effective_message.reply_text(
-                "Assessment is not finished yet. Complete the warm-up and interview questions first."
+                "Ассессмент еще не завершен. Сначала пройдите вводные и интервью-вопросы."
             )
             return
 
@@ -170,22 +185,22 @@ async def result_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
         if missing:
             await update.effective_message.reply_text(
-                "Assessment is still in progress. Missing evidence in: " + ", ".join(missing[:6])
+                "Ассессмент еще идет. Не хватает evidence по слоям: " + ", ".join(missing[:6])
             )
         else:
             await update.effective_message.reply_text(
-                "Assessment is still in progress. I need a few more answers for confidence before finalizing."
+                "Ассессмент еще в процессе. Нужно еще немного данных, чтобы повысить уверенность оценки."
             )
         return
 
     latest = db.get_latest_session(update.effective_user.id)
     if latest is None or latest.status != "completed" or not latest.final_report_markdown:
-        await update.effective_message.reply_text("No completed result found yet. Use /start to begin an assessment.")
+        await update.effective_message.reply_text("Готового результата пока нет. Запустите ассессмент через /start.")
         return
 
     await _send_report(update, latest.final_report_markdown)
     if latest.export_path:
-        await update.effective_message.reply_text(f"JSON export: {latest.export_path}")
+        await update.effective_message.reply_text(f"JSON-экспорт: {latest.export_path}")
 
 
 async def _start_assessment(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -198,15 +213,15 @@ async def _start_assessment(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     active = db.get_active_session(update.effective_user.id)
     if active:
         await update.effective_message.reply_text(
-            "You already have an active assessment. Continue answering or use /reset to restart."
+            "У вас уже есть активный ассессмент. Продолжайте отвечать или используйте /reset."
         )
         return
 
     session = db.create_session(update.effective_user.id, max_questions=max_questions)
 
     intro = (
-        "Great, let’s begin. I’ll ask 3 quick warm-up questions first, then move into the adaptive assessment.\n"
-        "Please answer with concrete examples where possible."
+        "Отлично, начинаем. Сначала 3 коротких вводных вопроса, затем живое адаптивное интервью.\n"
+        "Старайтесь отвечать на примерах: контекст, ваша роль, действия и результат."
     )
     await update.effective_message.reply_text(intro)
 
@@ -267,7 +282,7 @@ async def _finalize_assessment(
     reporter: ReportBuilder = _service(context, "reporter")
     pending_probes: dict[int, str | None] = _service(context, "pending_probes")
 
-    await update.effective_message.reply_text("Thanks. Generating your final assessment report...")
+    await update.effective_message.reply_text("Спасибо. Формирую итоговый отчет...")
 
     session = db.get_session(session.id) or session
     turns = db.list_turns(session.id)
@@ -286,7 +301,7 @@ async def _finalize_assessment(
     pending_probes.pop(session.id, None)
 
     await _send_report(update, artifacts.markdown)
-    await update.effective_message.reply_text(f"JSON export saved: {artifacts.export_path}")
+    await update.effective_message.reply_text(f"JSON-экспорт сохранен: {artifacts.export_path}")
 
 
 async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -304,7 +319,7 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
 
     session = db.get_active_session(update.effective_user.id)
     if session is None:
-        await update.effective_message.reply_text("No active assessment. Use /start and press Start assessment.")
+        await update.effective_message.reply_text("Активной сессии нет. Напишите /start и нажмите «Начать ассессмент». ")
         return
 
     try:
@@ -328,7 +343,7 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
                 await update.effective_message.reply_text(next_warmup)
                 return
 
-            await update.effective_message.reply_text("Perfect, now let’s move into the competency interview.")
+            await update.effective_message.reply_text("Отлично, переходим к основному интервью по компетенциям.")
             await _ask_first_assessment_question(update, context, session)
             return
 
@@ -367,7 +382,7 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
 
         use_probe = dialogue.is_vague_answer(text)
         if use_probe:
-            probe = pending_probes.get(session.id) or "Can you share one concrete example, your role, and the outcome?"
+            probe = pending_probes.get(session.id) or "Можете привести один конкретный пример: контекст, что делали лично вы и какой получился результат?"
             db.append_turn(session.id, role="assistant", content=probe, dimension=current_dimension)
             db.increment_question_count(session.id)
             pending_probes[session.id] = None
@@ -395,10 +410,10 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
     except OpenAIServiceError as exc:
         logger.exception("OpenAIServiceError: %s", exc)
         await update.effective_message.reply_text(
-            "I hit a temporary model issue. Please resend your last answer in a moment."
+            "Временная ошибка модели. Пожалуйста, повторите последнее сообщение через несколько секунд."
         )
     except Exception as exc:  # pragma: no cover - defensive branch
         logger.exception("Unexpected error in message handler: %s", exc)
         await update.effective_message.reply_text(
-            "Something went wrong while processing your answer. Please try again."
+            "Произошла ошибка при обработке ответа. Попробуйте еще раз."
         )

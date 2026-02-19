@@ -34,11 +34,15 @@ class DialogueManager:
         manager_hits = [
             "manager",
             "management",
-            "lead team",
             "people manager",
             "head of",
             "director",
             "hiring",
+            "менедж",
+            "руковод",
+            "управлен",
+            "лид команды",
+            "наним",
         ]
         ic_hits = [
             "ic",
@@ -48,6 +52,10 @@ class DialogueManager:
             "principal designer",
             "staff designer",
             "art director",
+            "индивидуальный вклад",
+            "индивидуальный трек",
+            "сильный крафт",
+            "хочу оставаться в продукте",
         ]
 
         m = any(keyword in normalized for keyword in manager_hits)
@@ -72,6 +80,12 @@ class DialogueManager:
             r"\bkind of\b",
             r"\bsomewhat\b",
             r"\bmaybe\b",
+            r"\bзависит\b",
+            r"\bне знаю\b",
+            r"\bобычно\b",
+            r"\bнаверное\b",
+            r"\bпримерно\b",
+            r"\bкак-то\b",
         ]
         return any(re.search(p, text.lower()) for p in vague_patterns)
 
@@ -99,7 +113,6 @@ class DialogueManager:
             if dim in required_dimensions and answered_dimensions.get(dim, 0) == 0:
                 return dim
 
-        # Then pick least-covered dimension.
         ranked = sorted(
             required_dimensions,
             key=lambda dim: (answered_dimensions.get(dim, 0), required_dimensions.index(dim)),
@@ -200,7 +213,6 @@ class DialogueManager:
         if len(unsummarized_turns) < 6:
             return None
 
-        # Keep only user answers + interviewer prompts to retain factual context.
         payload = [
             {
                 "role": turn.role,
@@ -230,5 +242,5 @@ class DialogueManager:
     @staticmethod
     def covered_dimension_names(dimensions: list[str]) -> str:
         if not dimensions:
-            return "none yet"
+            return "пока нет"
         return ", ".join(DIMENSION_DISPLAY.get(d, d) for d in dimensions)

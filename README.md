@@ -22,7 +22,7 @@ Data is stored locally in SQLite and JSON exports in `data/exports/`.
 ## Project Structure
 
 ```text
-/Users/vsdsgn/Documents/grade bot
+/Users/vsdsgn/Documents/github/grade_bot_v2
 ├── main.py
 ├── requirements.txt
 ├── .env.example
@@ -113,11 +113,11 @@ After deploy, your DB and JSON exports persist in the mounted volume under:
 
 ## Telegram Commands
 
-- `/start` - welcome, process/privacy explanation, and **Start assessment** button
-- `/reset` - clears current in-progress session
-- `/status` - progress: covered layers, confidence estimate, approximate remaining questions
-- `/result` - returns final report if finished; otherwise explains what is missing
-- `/help` - command help
+- `/start` - приветствие и кнопка старта ассессмента
+- `/reset` - сбрасывает текущую активную сессию
+- `/status` - прогресс: покрытые слои, оценка уверенности, сколько примерно осталось
+- `/result` - возвращает итоговый отчет или объясняет, чего пока не хватает
+- `/help` - краткая справка по командам
 
 ## Interview Flow
 

@@ -42,7 +42,7 @@ class GradeEngine:
         for dim in DIMENSIONS:
             dimension_scores.setdefault(dim, 0)
             evidence.setdefault(dim, [])
-            next_level_targets.setdefault(dim, "Gather more evidence and grow through deliberate practice.")
+            next_level_targets.setdefault(dim, "Нужно больше evidence и системная практика для роста.")
 
         payload["dimension_scores"] = dimension_scores
         payload["evidence"] = evidence
@@ -57,7 +57,7 @@ class GradeEngine:
     ) -> dict[str, Any]:
         evidence_summary = session.evidence_summary
         if not evidence_summary:
-            evidence_summary = "No prior summary available. Use recent turns as primary evidence."
+            evidence_summary = "Предыдущего summary нет, используем последние реплики как основной evidence-контекст."
 
         grade_payload = await self.openai_service.grade_assessment(
             track_hint=session.track_preference,
@@ -69,7 +69,6 @@ class GradeEngine:
 
         grade_payload = self._ensure_dimension_keys(grade_payload)
 
-        # Normalize confidence bounds if needed.
         confidence = float(grade_payload.get("confidence", 0))
         grade_payload["confidence"] = min(max(confidence, 0.0), 1.0)
         return grade_payload
