@@ -141,6 +141,9 @@ class OpenAIService:
         dimension_matrix: dict[str, Any],
         memory_points: list[str] | None = None,
         last_user_answer: str | None = None,
+        interview_phase: str = "core",
+        question_index: int = 0,
+        asked_for_dimension: int = 0,
     ) -> NextQuestion:
         schema = {
             "type": "object",
@@ -156,7 +159,8 @@ class OpenAIService:
         system_prompt = (
             "Ты профессиональный HR, продуктовый дизайнер и ассесмент-менеджер. "
             "Проведи интервью кандидата для последующего грейдирования. "
-            "Общайся как ChatGPT: естественно, по-человечески, без скриптовых формулировок."
+            "Общайся как ChatGPT: естественно и разговорно. "
+            "Задавай короткие вопросы и раскрывай кандидата постепенно: от простого к более глубокому."
         )
 
         user_prompt = {
@@ -168,9 +172,12 @@ class OpenAIService:
             "recent_assistant_questions": recent_assistant_questions or [],
             "memory_points": memory_points or [],
             "last_user_answer": (last_user_answer or "").strip(),
+            "interview_phase": interview_phase,
+            "question_index": question_index,
+            "asked_for_dimension": asked_for_dimension,
             "dimension_definition": dimension_matrix,
             "constraints": {
-                "question_max_words": 26,
+                "question_max_words": 15,
                 "one_question_only": True,
                 "follow_up_probe_optional": True,
                 "follow_up_probe_empty_string_if_not_needed": True,
@@ -179,6 +186,9 @@ class OpenAIService:
                 "style": "assessment_manager_chatgpt_like",
                 "no_multi_part_question": True,
                 "no_complex_clauses": True,
+                "prefer_short_simple_sentence": True,
+                "progressive_discovery": True,
+                "expected_candidate_answer": "2-5 коротких предложений",
                 "must_reference_recent_context": True,
                 "must_consider_last_user_answer": True,
                 "must_consider_memory_points": True,
@@ -186,6 +196,7 @@ class OpenAIService:
                 "prefer_short_contextual_prefix": True,
                 "avoid_repeating_recent_question_phrasing": True,
                 "if_repeated_topic_then_shift_angle": True,
+                "avoid_interview_overload": True,
                 "avoid_generic_probe_phrase": "Можете привести один конкретный пример",
             },
         }
@@ -210,7 +221,7 @@ class OpenAIService:
                     "strict": True,
                 }
             },
-            temperature=0.45,
+            temperature=0.35,
         )
 
         payload = self._extract_payload(response)
@@ -257,10 +268,11 @@ class OpenAIService:
             "attempt_index": attempt_index,
             "constraints": {
                 "language": "ru",
-                "response_max_words": 34,
+                "response_max_words": 24,
                 "start_with_short_acknowledgement": True,
                 "mention_missing_signal": ["context", "personal_contribution", "result"],
                 "one_clear_next_step": True,
+                "next_step_should_allow_short_answer": True,
                 "no_shaming": True,
                 "no_bullets": True,
                 "follow_up_probe_optional": True,
