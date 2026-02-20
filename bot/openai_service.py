@@ -326,14 +326,14 @@ class OpenAIService:
                 "strengths": {
                     "type": "array",
                     "items": {"type": "string"},
-                    "minItems": 3,
-                    "maxItems": 8,
+                    "minItems": 2,
+                    "maxItems": 4,
                 },
                 "growth_areas": {
                     "type": "array",
                     "items": {"type": "string"},
-                    "minItems": 3,
-                    "maxItems": 8,
+                    "minItems": 2,
+                    "maxItems": 4,
                 },
                 "next_level_targets": {
                     "type": "object",
@@ -343,8 +343,8 @@ class OpenAIService:
                 "recommended_actions": {
                     "type": "array",
                     "items": {"type": "string"},
-                    "minItems": 5,
-                    "maxItems": 8,
+                    "minItems": 3,
+                    "maxItems": 4,
                 },
                 "recommended_learning": {
                     "type": "array",
@@ -357,8 +357,8 @@ class OpenAIService:
                             "why": {"type": "string"},
                         },
                     },
-                    "minItems": 5,
-                    "maxItems": 10,
+                    "minItems": 3,
+                    "maxItems": 5,
                 },
             },
         }
@@ -380,8 +380,8 @@ class OpenAIService:
             "instructions": {
                 "evidence_quotes_short": True,
                 "grounded_in_user_answers_only": True,
-                "recommended_actions_count": "5-8",
-                "recommended_learning_count": "5-10",
+                "recommended_actions_count": "3-4",
+                "recommended_learning_count": "3-5",
                 "language": "ru",
             },
         }

@@ -1,0 +1,17 @@
+{
+  "name": "role_calibration_default",
+  "description": "Default role-to-level guardrails to avoid obvious underestimation.",
+  "role_floors": {
+    "Junior": ["intern", "стажер", "junior"],
+    "Middle": ["middle", "product designer", "дизайнер продукта"],
+    "Senior": ["senior", "старший дизайнер"],
+    "Lead_IC": ["lead designer", "staff designer", "principal designer", "ведущий дизайнер"],
+    "Head_M": ["head of design", "design manager", "руководитель дизайна", "руководитель группы"],
+    "ArtDirector_IC": ["art director", "арт-директор"],
+    "DesignDirector_M": ["design director", "директор по дизайну", "vp design"]
+  },
+  "track_hints": {
+    "IC": ["ic", "individual contributor", "арт-директор", "ведущий дизайнер"],
+    "M": ["manager", "head", "director", "руководитель", "менеджер", "управление командой"]
+  }
+}

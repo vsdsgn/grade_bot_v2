@@ -13,6 +13,8 @@ from bot.grading import GradeEngine
 from bot.handlers import (
     help_command,
     legacy_command_handler,
+    matrices_command,
+    reload_matrix_command,
     reset_command,
     result_command,
     start_assessment_callback,
@@ -40,6 +42,8 @@ async def _post_init_set_commands(app: Application) -> None:
         BotCommand("status", "Текущий прогресс"),
         BotCommand("result", "Итоговый отчет"),
         BotCommand("reset", "Сбросить текущую сессию"),
+        BotCommand("matrices", "Список загруженных матриц"),
+        BotCommand("reload_matrix", "Перезагрузить матрицы"),
         BotCommand("help", "Справка по командам"),
     ]
 
@@ -89,6 +93,8 @@ def build_application() -> Application:
     app.add_handler(CommandHandler("reset", reset_command))
     app.add_handler(CommandHandler("status", status_command))
     app.add_handler(CommandHandler("result", result_command))
+    app.add_handler(CommandHandler("matrices", matrices_command))
+    app.add_handler(CommandHandler("reload_matrix", reload_matrix_command))
 
     # Graceful migration of old command names if users still have them cached.
     app.add_handler(CommandHandler(["grade", "feedback", "language"], legacy_command_handler))

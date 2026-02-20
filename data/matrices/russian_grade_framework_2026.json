@@ -1,0 +1,91 @@
+{
+  "name": "russian_grade_framework_2026",
+  "description": "Calibration from internal RU product design grade maps (14-18, specialist/manager branches).",
+  "role_floors": {
+    "Junior": [
+      "стажер",
+      "младший дизайнер",
+      "junior designer",
+      "новичок",
+      "14"
+    ],
+    "Middle": [
+      "дизайнер",
+      "дизайнер продукта",
+      "middle",
+      "mid-level",
+      "15"
+    ],
+    "Senior": [
+      "старший дизайнер",
+      "senior designer",
+      "16",
+      "синьер"
+    ],
+    "Lead_IC": [
+      "ведущий дизайнер",
+      "principal designer",
+      "staff designer",
+      "17 специалист"
+    ],
+    "ArtDirector_IC": [
+      "арт-директор",
+      "art director",
+      "18 специалист"
+    ],
+    "Head_M": [
+      "руководитель группы",
+      "руководитель команды",
+      "head of design",
+      "design manager",
+      "17 менеджер",
+      "18 руководитель"
+    ],
+    "DesignDirector_M": [
+      "дизайн-директор",
+      "директор по дизайну",
+      "директор департамента",
+      "design director",
+      "vp design"
+    ]
+  },
+  "track_hints": {
+    "IC": [
+      "ic",
+      "individual contributor",
+      "специалист",
+      "арт-директор",
+      "ведущий дизайнер"
+    ],
+    "M": [
+      "manager",
+      "head",
+      "director",
+      "руководитель",
+      "менеджер",
+      "управляю командой",
+      "найм"
+    ]
+  },
+  "manager_behavior_keywords": [
+    "нанима",
+    "увольня",
+    "ревью",
+    "1:1",
+    "перформанс",
+    "план развития команды",
+    "бюджет",
+    "ресурсное планирование",
+    "управление командой"
+  ],
+  "director_behavior_keywords": [
+    "дизайн-стратегия",
+    "оргдизайн",
+    "группа сервисов",
+    "портфель продуктов",
+    "межкомандные процессы",
+    "масштабирование команды",
+    "культура дизайна"
+  ],
+  "notes": "Use these mappings as priors; final decision must still rely on interview evidence."
+}

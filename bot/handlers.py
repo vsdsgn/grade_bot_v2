@@ -7,11 +7,12 @@ from typing import Any
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
+from .config import MATRIX_PATH
 from .constants import DIMENSION_DISPLAY, PROFILE_FIELDS, WARMUP_QUESTIONS
 from .database import Database
 from .dialogue import DialogueManager
 from .grading import GradeEngine
-from .matrix import required_dimensions_for_track
+from .matrix import MatrixError, load_matrix, required_dimensions_for_track
 from .models import Session, Turn
 from .openai_service import OpenAIServiceError
 from .reporting import ReportBuilder
@@ -19,7 +20,7 @@ from .reporting import ReportBuilder
 logger = logging.getLogger(__name__)
 
 
-NEW_COMMANDS_HINT = "Используйте команды: /start, /status, /result, /reset, /help"
+NEW_COMMANDS_HINT = "Используйте команды: /start, /status, /result, /matrices, /reload_matrix, /reset, /help"
 
 
 def _service(context: ContextTypes.DEFAULT_TYPE, key: str) -> Any:
@@ -59,13 +60,58 @@ def _latest_assistant_dimension(turns: list[Turn]) -> str | None:
 
 def _build_warmup_question(index: int, profile: dict[str, Any]) -> str:
     if index <= 0:
-        return "Начнем просто: чем вы сейчас занимаетесь в роли дизайнера?"
+        return "Коротко: какая у вас сейчас роль и зона ответственности?"
     if index == 1:
-        return "А какой у вас продукт и кто его основные пользователи?"
+        return "В каком продукте вы работаете и кто ваш ключевой пользователь?"
     if index == 2:
-        return "Сколько у вас опыта и куда хотите расти дальше: IC или менеджмент?"
+        return "Сколько лет в продукте и какой трек вам ближе: IC или менеджмент?"
 
     return "Добавьте, пожалуйста, немного контекста по текущей роли."
+
+
+def _short_ack(text: str) -> str:
+    tokens = len(text.split())
+    if tokens <= 5:
+        return "Понял, спасибо."
+    if tokens <= 14:
+        return "Отлично, понял контекст."
+    return "Спасибо, это полезный контекст."
+
+
+def _bridge_for_dimension(dimension: str | None) -> str:
+    bridge_map = {
+        "scope_responsibility": "Дальше про масштаб.",
+        "impact": "Хорошо, теперь про результат.",
+        "uncertainty_tolerance": "Понял. Теперь про решения в неопределенности.",
+        "planning_horizon": "Отлично. Следующий фокус - планирование.",
+        "hard_craft": "Перейдем к вашему крафту.",
+        "hard_systems": "Теперь про системность в работе.",
+        "hard_product_business": "Хочу понять продуктовый угол.",
+        "soft_communication_influence": "Супер, теперь про влияние на команду.",
+        "management": "Давайте про управление людьми.",
+    }
+    if not dimension:
+        return "Продолжаем."
+    return bridge_map.get(dimension, "Продолжаем.")
+
+
+def _compose_question_message(question: str, dimension: str | None) -> str:
+    return f"{_bridge_for_dimension(dimension)}\n{question}"
+
+
+def _supplemental_names(matrix: dict[str, Any]) -> list[str]:
+    supplemental = matrix.get("supplemental_matrices", [])
+    if not isinstance(supplemental, list):
+        return []
+
+    names: list[str] = []
+    for item in supplemental:
+        if not isinstance(item, dict):
+            continue
+        name = str(item.get("name", "")).strip()
+        if name:
+            names.append(name)
+    return names
 
 
 async def legacy_command_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -85,12 +131,13 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     active_session = db.get_active_session(update.effective_user.id)
 
     welcome_lines = [
-        "Формат: живой диалог, один короткий вопрос за раз.",
-        "Отвечайте на примерах: что делали лично вы и какой был результат.",
+        "Живое интервью по грейду продуктового дизайнера.",
+        "Формат: один короткий вопрос за раз (обычно 10-15 минут).",
+        "В конце: предполагаемый уровень, сильные стороны, зоны роста и план на 90 дней.",
     ]
 
     if active_session:
-        welcome_lines.append("У вас уже есть активная сессия. Используйте /status для продолжения или /reset для перезапуска.")
+        welcome_lines.append("У вас уже есть активная сессия: /status для продолжения или /reset для перезапуска.")
 
     keyboard = InlineKeyboardMarkup(
         [[InlineKeyboardButton("Начать ассессмент", callback_data="start_assessment")]]
@@ -108,8 +155,52 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "/reset - сброс активной сессии\n"
         "/status - текущий прогресс\n"
         "/result - итоговый отчет\n"
+        "/matrices - загруженные матрицы калибровки\n"
+        "/reload_matrix - перечитать матрицы из data/matrices\n"
         "/help - подсказка"
     )
+
+
+async def matrices_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if update.effective_message is None:
+        return
+
+    dialogue: DialogueManager = _service(context, "dialogue")
+    matrix = dialogue.matrix
+    names = _supplemental_names(matrix)
+
+    if names:
+        await update.effective_message.reply_text(
+            "Загружены supplemental-матрицы:\n- " + "\n- ".join(names)
+        )
+        return
+
+    await update.effective_message.reply_text(
+        "Сейчас supplemental-матриц нет. Добавьте JSON-файлы в data/matrices и вызовите /reload_matrix."
+    )
+
+
+async def reload_matrix_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if update.effective_message is None:
+        return
+
+    dialogue: DialogueManager = _service(context, "dialogue")
+    grader: GradeEngine = _service(context, "grader")
+
+    try:
+        matrix = load_matrix(MATRIX_PATH)
+    except MatrixError as exc:
+        await update.effective_message.reply_text(f"Не удалось перечитать матрицу: {exc}")
+        return
+
+    dialogue.matrix = matrix
+    grader.matrix = matrix
+
+    names = _supplemental_names(matrix)
+    summary = f"Матрица перезагружена. supplemental: {len(names)}"
+    if names:
+        summary += "\n- " + "\n- ".join(names)
+    await update.effective_message.reply_text(summary)
 
 
 async def reset_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -119,8 +210,10 @@ async def reset_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     db: Database = _service(context, "db")
     pending_probes: dict[int, str | None] = _service(context, "pending_probes")
 
+    active = db.get_active_session(update.effective_user.id)
     deleted = db.reset_active_session(update.effective_user.id)
-    pending_probes.pop(update.effective_user.id, None)
+    if active:
+        pending_probes.pop(active.id, None)
 
     if deleted:
         await update.effective_message.reply_text("Текущая сессия сброшена. Напишите /start, чтобы начать заново.")
@@ -223,10 +316,9 @@ async def _start_assessment(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
     session = db.create_session(update.effective_user.id, max_questions=max_questions)
 
-    await update.effective_message.reply_text("Поехали.")
     first_q = _build_warmup_question(0, profile={})
     db.append_turn(session.id, role="assistant", content=first_q, dimension=None)
-    await update.effective_message.reply_text(first_q)
+    await update.effective_message.reply_text(f"Отлично, начинаем.\n{first_q}")
 
 
 async def start_assessment_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -264,7 +356,7 @@ async def _ask_first_assessment_question(
     db.increment_question_count(session.id)
     pending_probes[session.id] = next_question.follow_up_probe
 
-    await update.effective_message.reply_text(next_question.question)
+    await update.effective_message.reply_text(_compose_question_message(next_question.question, target_dimension))
 
 
 async def _finalize_assessment(
@@ -281,7 +373,7 @@ async def _finalize_assessment(
     reporter: ReportBuilder = _service(context, "reporter")
     pending_probes: dict[int, str | None] = _service(context, "pending_probes")
 
-    await update.effective_message.reply_text("Спасибо. Формирую итоговый отчет...")
+    await update.effective_message.reply_text("Спасибо. Формирую короткий итог...")
 
     session = db.get_session(session.id) or session
     turns = db.list_turns(session.id)
@@ -347,10 +439,10 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
                 profile = dialogue.extract_profile(session)
                 next_warmup = _build_warmup_question(session.warmup_index, profile)
                 db.append_turn(session.id, role="assistant", content=next_warmup, dimension=None)
-                await update.effective_message.reply_text(next_warmup)
+                await update.effective_message.reply_text(f"{_short_ack(text)}\n{next_warmup}")
                 return
 
-            await update.effective_message.reply_text("Понял контекст. Переходим к основным вопросам.")
+            await update.effective_message.reply_text(f"{_short_ack(text)}\nПерейдем к основному интервью.")
             await _ask_first_assessment_question(update, context, session)
             return
 
@@ -389,11 +481,13 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
 
         use_probe = dialogue.is_vague_answer(text)
         if use_probe:
-            probe = pending_probes.get(session.id) or "Можете привести один конкретный пример: контекст, что делали лично вы и какой получился результат?"
+            probe = pending_probes.get(session.id) or (
+                "Можете привести один конкретный пример: контекст, ваш вклад и результат?"
+            )
             db.append_turn(session.id, role="assistant", content=probe, dimension=current_dimension)
             db.increment_question_count(session.id)
             pending_probes[session.id] = None
-            await update.effective_message.reply_text(probe)
+            await update.effective_message.reply_text(f"{_short_ack(text)}\n{probe}")
             return
 
         profile = dialogue.extract_profile(session)
@@ -412,7 +506,7 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
         )
         db.increment_question_count(session.id)
         pending_probes[session.id] = next_question.follow_up_probe
-        await update.effective_message.reply_text(next_question.question)
+        await update.effective_message.reply_text(_compose_question_message(next_question.question, target_dimension))
 
     except OpenAIServiceError as exc:
         logger.exception("OpenAIServiceError: %s", exc)

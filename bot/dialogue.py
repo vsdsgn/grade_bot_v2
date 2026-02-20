@@ -73,7 +73,11 @@ class DialogueManager:
     @staticmethod
     def is_vague_answer(text: str) -> bool:
         token_count = len(text.split())
-        if token_count < 12:
+        has_numbers = bool(re.search(r"\d", text))
+
+        if token_count < 5:
+            return True
+        if token_count < 8 and not has_numbers:
             return True
 
         vague_patterns = [
@@ -90,7 +94,11 @@ class DialogueManager:
             r"\bпримерно\b",
             r"\bкак-то\b",
         ]
-        return any(re.search(p, text.lower()) for p in vague_patterns)
+
+        if any(re.search(p, text.lower()) for p in vague_patterns):
+            return token_count < 16
+
+        return False
 
     @staticmethod
     def build_recent_turns_payload(turns: list[Turn], limit: int = 10) -> list[dict[str, str]]:

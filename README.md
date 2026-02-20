@@ -5,7 +5,7 @@ A local end-to-end Telegram bot that runs a live adaptive interview for product 
 1. Suggested level (`Junior`, `Middle`, `Senior`, `Lead_IC`, `Head_M`, `ArtDirector_IC`, `DesignDirector_M`)
 2. Per-layer scores with evidence snippets
 3. Strengths, growth areas, and recommended actions
-4. A short roadmap for the next level
+4. Compact 90-day roadmap
 
 Data is stored locally in SQLite and JSON exports in `data/exports/`.
 
@@ -22,7 +22,7 @@ Data is stored locally in SQLite and JSON exports in `data/exports/`.
 ## Project Structure
 
 ```text
-/Users/vsdsgn/Documents/github/grade_bot_v2
+/Users/vsdsgn/Documents/GitHub/grade_bot_v2
 ├── main.py
 ├── requirements.txt
 ├── .env.example
@@ -42,7 +42,8 @@ Data is stored locally in SQLite and JSON exports in `data/exports/`.
 └── data/
     ├── matrix_v2.json
     ├── assessments.db        # created on first run
-    └── exports/
+    ├── exports/
+    └── matrices/             # optional supplemental matrix JSON files
 ```
 
 ## Setup
@@ -84,7 +85,7 @@ On startup the app will:
 
 - Ensure `data/` and `data/exports/` exist
 - Initialize SQLite schema in `data/assessments.db`
-- Load `data/matrix_v2.json`
+- Load `data/matrix_v2.json` plus optional supplemental files from `data/matrices/*.json`
 - Start Telegram long polling
 
 ## Deploy to Railway (GitHub + your OpenAI key)
@@ -113,18 +114,36 @@ After deploy, your DB and JSON exports persist in the mounted volume under:
 
 ## Telegram Commands
 
-- `/start` - приветствие и кнопка старта ассессмента
+- `/start` - короткое объяснение формата + кнопка старта
 - `/reset` - сбрасывает текущую активную сессию
-- `/status` - прогресс: покрытые слои, оценка уверенности, сколько примерно осталось
+- `/status` - прогресс: покрытые слои, уверенность, сколько примерно осталось
 - `/result` - возвращает итоговый отчет или объясняет, чего пока не хватает
+- `/matrices` - показывает подключенные supplemental-матрицы
+- `/reload_matrix` - перечитывает `data/matrices/*` без перезапуска
 - `/help` - краткая справка по командам
+
+Legacy commands (`/grade`, `/feedback`, `/language`) are intercepted and redirected to new flow.
 
 ## Interview Flow
 
-- Warm-up (3 questions): role context, domain/users, years + IC/M preference
+- Warm-up (3 short questions): role context, domain/users, years + IC/M preference
 - Adaptive interview across matrix layers (one question at a time)
 - Follow-up probes when answers are vague
 - Stops when confidence threshold is met (with sufficient coverage) or max question limit is reached
+- Final output is concise (level + confidence + strengths/growth + 90-day steps)
+
+## Supplemental Matrices
+
+To calibrate for your internal frameworks, add JSON files into `data/matrices/`.
+
+The bot auto-loads all `*.json` files from that folder on startup and uses them in grading priors:
+
+- `role_floors`
+- `track_hints`
+- optional `manager_behavior_keywords`
+- optional `director_behavior_keywords`
+
+Template and examples: `data/matrices/README.md`.
 
 ## Persistence & Exports
 
