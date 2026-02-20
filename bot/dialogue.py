@@ -16,118 +16,88 @@ logger = logging.getLogger(__name__)
 
 FALLBACK_QUESTION_BANK: dict[str, list[str]] = {
     "scope_responsibility": [
-        "Какой проект за последний год был самым масштабным в вашей зоне?",
-        "Где зона вашей ответственности заметно расширилась за последний год?",
-        "В какой задаче вы отвечали за самый большой кусок продукта?",
+        "Какой кейс за последний год лучше всего показывает масштаб вашей ответственности?",
+        "В каком проекте ваша зона ответственности была самой широкой?",
+        "Расскажите о задаче, где вы отвечали за наибольший кусок продукта.",
     ],
     "impact": [
-        "Какое ваше решение дало самый заметный эффект для продукта?",
-        "Где ваш вклад сильнее всего сдвинул бизнес-метрику?",
-        "Какой кейс лучше всего показывает влияние вашей работы на результат?",
+        "Какое ваше решение сильнее всего повлияло на продуктовый результат?",
+        "В каком кейсе ваш вклад заметно сдвинул метрику или поведение пользователей?",
+        "Какой пример лучше всего показывает измеримый эффект вашей работы?",
     ],
     "uncertainty_tolerance": [
-        "Как вы действовали, когда данных было недостаточно?",
-        "Какой риск вы осознанно приняли в условиях неопределенности?",
-        "Когда фактов не хватало, на что вы опирались при выборе решения?",
+        "В каком кейсе вы принимали решение при нехватке данных?",
+        "Расскажите о ситуации с высокой неопределенностью и вашем решении.",
+        "Какой риск вы осознанно приняли и почему?",
     ],
     "planning_horizon": [
-        "На какой горизонт вы обычно планируете дизайн-работу?",
-        "Как вы держите фокус команды на цели дальше ближайшего спринта?",
-        "Как выглядит ваш подход к планированию на квартал?",
+        "На какой горизонт вы обычно планируете продуктово-дизайнерские решения?",
+        "В каком кейсе вы выстроили план на несколько этапов вперед?",
+        "Как вы обеспечиваете, что план остается реалистичным при изменениях?",
     ],
     "hard_craft": [
-        "Какой кейс лучше всего показывает ваш уровень крафта?",
-        "В каком проекте вы сильнее всего прокачали качество интерфейса?",
-        "Где ваше визуальное и UX-решение заметно улучшило продукт?",
+        "Какой кейс лучше всего показывает ваш уровень craft?",
+        "Где ваше дизайн-решение заметно подняло качество интерфейса?",
+        "В каком проекте вы сделали самый сильный рывок в качестве решения?",
     ],
     "hard_systems": [
-        "Что вы лично улучшили в дизайн-системе за последний год?",
-        "Какое системное решение вы внедрили, чтобы команда работала быстрее?",
-        "Где вы выстроили процесс, который масштабируется на несколько команд?",
+        "Какое системное улучшение вы внедрили и как оно масштабировалось?",
+        "Что вы сделали в дизайн-системе, что ускорило работу команды?",
+        "Расскажите о решении, которое переиспользуется несколькими командами.",
     ],
     "hard_product_business": [
-        "Когда приходилось выбирать между UX и бизнес-целями?",
-        "Как вы связываете дизайн-решения с метриками продукта?",
-        "В каком кейсе вы пересобрали решение ради бизнес-результата?",
+        "Когда вам приходилось балансировать UX и бизнес-цель, как вы приняли решение?",
+        "В каком кейсе вы пересобрали дизайн ради бизнес-результата?",
+        "Как вы связывали дизайн-решение с продуктовой метрикой?",
     ],
     "soft_communication_influence": [
-        "Как вы убеждали команду, когда мнения расходились?",
-        "Как вы проводите сложные решения без формальной власти?",
-        "В каком кейсе вам удалось изменить позицию стейкхолдеров?",
+        "Расскажите кейс, где вам удалось изменить позицию стейкхолдеров.",
+        "Как вы проводили сложное решение без формальной власти?",
+        "Кого было сложнее всего убедить и как вы это сделали?",
     ],
     "management": [
-        "Как вы развиваете дизайнеров в команде?",
-        "Как вы даете обратную связь и растите уровень команды?",
-        "Как вы принимаете кадровые решения в своей функции?",
-    ],
-    "culture_ownership": [
-        "Когда вы брали на себя проблему вне формальной зоны ответственности?",
-        "Где вы довели задачу до результата, хотя это не входило в ваш scope?",
-        "В каком кейсе вы стали owner проблемы, а не только своего участка?",
-    ],
-    "culture_proactivity": [
-        "Что вы улучшили по собственной инициативе?",
-        "Какую инициативу вы запустили без прямого запроса сверху?",
-        "Что вы поменяли в процессе, чтобы команде стало проще работать?",
-    ],
-    "culture_quality_bar": [
-        "Как вы удерживаете качество, когда сроки сжаты?",
-        "В каком кейсе вы не опустили планку качества под дедлайн?",
-        "Как вы определяете минимально допустимый quality bar?",
-    ],
-    "culture_collaboration": [
-        "Как вы разруливали сложный кросс-функциональный конфликт?",
-        "Где вам удалось выстроить сильное партнерство с продуктом и разработкой?",
-        "Как вы синхронизируете команды вокруг общего решения?",
-    ],
-    "culture_learning": [
-        "Как вы превращаете ошибки в улучшения процесса?",
-        "Какой ваш недавний фейл стал полезным уроком для команды?",
-        "Как вы внедряете системное обучение в команде?",
-    ],
-    "culture_integrity_safety": [
-        "Когда вы отстаивали решение в пользу этики или безопасности пользователя?",
-        "Был ли кейс, где вы остановили запуск из-за риска для пользователей?",
-        "Как вы балансируете бизнес-давление и безопасность пользователя?",
+        "Как вы развивали людей в команде на конкретном примере?",
+        "Расскажите о кейсе, где вы подняли уровень команды через обратную связь.",
+        "Какие управленческие решения дали заметный эффект для команды?",
     ],
 }
 
 FALLBACK_PROBE_BANK: dict[str, list[str]] = {
     "scope_responsibility": [
-        "Что в этом кейсе было вашей личной зоной ответственности?",
+        "Что в этом кейсе было вашей личной ответственностью?",
         "Какой масштаб был у задачи: команда, продукт, бизнес?",
     ],
     "impact": [
-        "Какой конкретный эффект это дало в цифрах или поведении пользователей?",
-        "По каким метрикам вы поняли, что решение сработало?",
+        "Каким был результат в цифрах или наблюдаемом поведении пользователей?",
+        "По каким данным вы поняли, что решение сработало?",
     ],
     "uncertainty_tolerance": [
-        "Какой главный риск вы видели и как его снижали?",
-        "Что стало решающим аргументом в вашем выборе?",
+        "Какой ключевой риск вы видели и как его снижали?",
+        "Что стало решающим фактором в вашем выборе?",
     ],
     "planning_horizon": [
-        "Как вы проверяете, что план остается реалистичным?",
-        "Какие риски вы закладываете в план заранее?",
+        "Как вы проверяли, что план остается достижимым?",
+        "Какие риски в этот план вы заложили заранее?",
     ],
     "hard_craft": [
-        "Что в этом решении было самым сложным на уровне крафта?",
-        "Как вы проверяли качество и консистентность решения?",
+        "Что было самым сложным на уровне craft и как вы это решили?",
+        "Как проверяли качество и консистентность решения?",
     ],
     "hard_systems": [
-        "Что из этого теперь переиспользуется другими командами?",
-        "Как вы масштабировали это решение за пределы одного кейса?",
+        "Какая часть решения стала стандартом для других команд?",
+        "Что позволило масштабировать решение за пределы одного кейса?",
     ],
     "hard_product_business": [
-        "Как вы объяснили этот выбор с точки зрения бизнеса?",
-        "Какая метрика изменилась после вашего решения?",
+        "Как вы аргументировали выбор с точки зрения бизнеса?",
+        "Какая метрика изменилась после внедрения решения?",
     ],
     "soft_communication_influence": [
-        "Кого было сложнее всего убедить и как вы это сделали?",
-        "Какая аргументация в итоге сработала лучше всего?",
+        "Какая аргументация в итоге оказалась рабочей?",
+        "Что помогло вам снять основное сопротивление?",
     ],
     "management": [
-        "Как именно вы растили людей в этом кейсе?",
-        "Какие изменения в команде произошли после ваших действий?",
+        "Какие конкретные изменения произошли с людьми после ваших действий?",
+        "Как вы измеряли эффект ваших управленческих решений?",
     ],
 }
 
@@ -137,6 +107,7 @@ FRUSTRATION_PATTERNS = [
     r"хватит",
     r"надоел",
     r"бесит",
+    r"отстан",
     r"stop",
     r"enough",
 ]
@@ -147,19 +118,14 @@ NON_ASSESSMENT_SHORT_REPLIES = {
     "ага",
     "ок",
     "окей",
-    "пон",
     "ясно",
+    "пон",
     "норм",
     "лол",
-    "кек",
-    "много",
     "хз",
     "idk",
     "yes",
     "no",
-    "haha",
-    "hah",
-    "xd",
 }
 
 OBSCENE_PATTERNS = [
@@ -168,12 +134,8 @@ OBSCENE_PATTERNS = [
     r"\bеб[а-я]*",
     r"\bбля",
     r"\bсук",
-    r"\bдроч",
-    r"\bпис[кю]",
     r"\bfuck",
     r"\bshit",
-    r"\bdick",
-    r"\bcock",
 ]
 
 QUESTION_SIMILARITY_STOPWORDS = {
@@ -186,11 +148,7 @@ QUESTION_SIMILARITY_STOPWORDS = {
     "где",
     "почему",
     "зачем",
-    "ли",
     "это",
-    "этот",
-    "эта",
-    "эти",
     "для",
     "в",
     "на",
@@ -199,7 +157,6 @@ QUESTION_SIMILARITY_STOPWORDS = {
     "но",
     "или",
     "а",
-    "you",
     "the",
     "a",
     "an",
@@ -258,44 +215,14 @@ class DialogueManager:
             "хочу оставаться в продукте",
         ]
 
-        m = any(keyword in normalized for keyword in manager_hits)
+        manager = any(keyword in normalized for keyword in manager_hits)
         ic = any(keyword in normalized for keyword in ic_hits)
 
-        if m and not ic:
+        if manager and not ic:
             return "M"
-        if ic and not m:
+        if ic and not manager:
             return "IC"
         return None
-
-    @staticmethod
-    def is_vague_answer(text: str) -> bool:
-        token_count = len(text.split())
-        has_numbers = bool(re.search(r"\d", text))
-
-        if token_count < 4:
-            return True
-        if token_count < 7 and not has_numbers:
-            return True
-
-        vague_patterns = [
-            r"\bit depends\b",
-            r"\bnot sure\b",
-            r"\busually\b",
-            r"\bkind of\b",
-            r"\bsomewhat\b",
-            r"\bmaybe\b",
-            r"\bзависит\b",
-            r"\bне знаю\b",
-            r"\bобычно\b",
-            r"\bнаверное\b",
-            r"\bпримерно\b",
-            r"\bкак-то\b",
-        ]
-
-        if any(re.search(p, text.lower()) for p in vague_patterns):
-            return token_count < 18
-
-        return False
 
     @staticmethod
     def is_frustrated_answer(text: str) -> bool:
@@ -321,11 +248,59 @@ class DialogueManager:
         if len(words) <= 2 and all(word in NON_ASSESSMENT_SHORT_REPLIES for word in words):
             return True
 
-        if len(words) == 1 and words[0] in NON_ASSESSMENT_SHORT_REPLIES:
-            return True
-
         has_letters_or_digits = bool(re.search(r"[a-zа-я0-9]", normalized))
         if not has_letters_or_digits:
+            return True
+
+        return False
+
+    @staticmethod
+    def _has_specificity_markers(text: str) -> bool:
+        normalized = text.lower()
+        if re.search(r"\d", normalized):
+            return True
+
+        specificity_markers = [
+            "команда",
+            "метрик",
+            "конверс",
+            "выруч",
+            "задач",
+            "релиз",
+            "спринт",
+            "а/б",
+            "ab-test",
+            "stakeholder",
+            "roadmap",
+            "пользовател",
+            "kpi",
+            "%",
+        ]
+        return any(marker in normalized for marker in specificity_markers)
+
+    @classmethod
+    def is_vague_answer(cls, text: str) -> bool:
+        token_count = len([w for w in text.split() if w.strip()])
+        if token_count < 5:
+            return True
+
+        vague_patterns = [
+            r"\bit depends\b",
+            r"\bnot sure\b",
+            r"\bmaybe\b",
+            r"\busually\b",
+            r"\bkind of\b",
+            r"\bзависит\b",
+            r"\bне знаю\b",
+            r"\bнаверное\b",
+            r"\bобычно\b",
+            r"\bпримерно\b",
+            r"\bкак-то\b",
+        ]
+        if any(re.search(pattern, text.lower()) for pattern in vague_patterns):
+            return token_count < 20
+
+        if token_count < 10 and not cls._has_specificity_markers(text):
             return True
 
         return False
@@ -335,20 +310,11 @@ class DialogueManager:
         if cls.is_non_assessment_answer(text):
             return True
 
-        normalized = text.lower().strip()
-        words = [w for w in re.split(r"\s+", normalized) if w]
-        if not words:
+        words = [w for w in re.split(r"\s+", text.lower().strip()) if w]
+        if len(words) < 6:
             return True
 
-        has_numbers = bool(re.search(r"\d", normalized))
-        if len(words) < 5:
-            return True
-        if len(words) < 8 and not has_numbers:
-            return True
-
-        if cls.is_vague_answer(text):
-            if has_numbers and len(words) >= 5:
-                return False
+        if cls.is_vague_answer(text) and not cls._has_specificity_markers(text):
             return True
 
         return False
@@ -359,9 +325,7 @@ class DialogueManager:
         for turn in turns:
             if turn.role != "user" or turn.dimension is None:
                 continue
-            if cls.is_non_assessment_answer(turn.content):
-                continue
-            if len(turn.content.split()) < 5:
+            if cls.is_low_signal_answer(turn.content):
                 continue
             meaningful += 1
 
@@ -370,20 +334,32 @@ class DialogueManager:
     @staticmethod
     def answer_format_hint_for_dimension(dimension: str | None) -> str:
         hints = {
-            "scope_responsibility": "Нужен пример в формате: масштаб задачи, ваша зона ответственности, результат.",
-            "impact": "Нужен пример в формате: что сделали и какой эффект в метриках или поведении пользователей.",
-            "uncertainty_tolerance": "Нужен пример: в чем была неопределенность, какое решение приняли, какой вышел итог.",
-            "planning_horizon": "Нужен пример: как планировали, какие этапы/риски выделяли, что получили в итоге.",
-            "hard_craft": "Нужен пример: какая дизайн-задача, что сделали руками, как это улучшило качество.",
-            "hard_systems": "Нужен пример: какое системное улучшение вы внедрили и как оно масштабировалось.",
-            "hard_product_business": "Нужен пример: где балансировали UX и бизнес-цель, и что получилось.",
-            "soft_communication_influence": "Нужен пример: кого убеждали, какой аргумент сработал, к какому решению пришли.",
-            "management": "Нужен пример: кого и как развивали, какие изменения это дало команде.",
+            "scope_responsibility": "Нужен один кейс: контекст, масштаб и ваша личная зона ответственности.",
+            "impact": "Нужен один кейс: ваши действия и конкретный результат в метриках или поведении пользователей.",
+            "uncertainty_tolerance": "Нужен один кейс: неопределенность, ваше решение и итог.",
+            "planning_horizon": "Нужен один кейс: горизонт планирования, ключевые этапы и результат.",
+            "hard_craft": "Нужен один кейс: что именно вы сделали руками и как это повысило качество решения.",
+            "hard_systems": "Нужен один кейс: системное улучшение и как оно масштабировалось.",
+            "hard_product_business": "Нужен один кейс: как вы балансировали UX и бизнес-цели и к чему пришли.",
+            "soft_communication_influence": "Нужен один кейс: кого убеждали, каким аргументом и какой был итог.",
+            "management": "Нужен один кейс: как вы развивали людей и какой эффект получили в команде.",
         }
         return hints.get(
             dimension or "",
-            "Нужен реальный кейс: контекст, ваш личный вклад и конкретный результат.",
+            "Нужен один реальный кейс: контекст, ваш личный вклад, результат.",
         )
+
+    @classmethod
+    def _extract_topic_phrase(cls, text: str, max_words: int = 7) -> str:
+        if cls.is_non_assessment_answer(text):
+            return ""
+
+        cleaned = re.sub(r"\s+", " ", text).strip()
+        cleaned = re.sub(r"[^\w\s-]", "", cleaned)
+        words = [word for word in cleaned.split() if len(word) > 1]
+        if len(words) < 2:
+            return ""
+        return " ".join(words[:max_words])
 
     @classmethod
     def build_correction_message(
@@ -393,72 +369,28 @@ class DialogueManager:
         attempt_index: int = 0,
     ) -> str:
         topic = cls._extract_topic_phrase(last_user_answer)
-        prefix = f"Понял, вы говорите про «{topic}». " if topic else ""
+        prefix = f"Принял, вы говорите про «{topic}». " if topic else ""
 
         if attempt_index <= 0:
-            return (
-                prefix
-                + cls.answer_format_hint_for_dimension(dimension)
-                + " Один конкретный кейс, без общих фраз."
-            )
+            return prefix + cls.answer_format_hint_for_dimension(dimension)
 
         if attempt_index == 1:
-            return (
-                prefix
-                + "Давайте проще: где это происходило, что сделали лично вы и какой был результат."
-            )
+            return prefix + "Давайте конкретизируем: где это происходило, что сделали лично вы и чем это закончилось?"
 
         return (
             prefix
-            + "Без конкретики оценка будет неточной. Нужен один кейс в 2-4 предложениях: контекст -> ваш вклад -> результат."
+            + "Чтобы оценка была точной, нужен один кейс в 2-4 предложениях: контекст -> ваш вклад -> результат."
         )
-
-    async def generate_contextual_correction(
-        self,
-        target_dimension: str | None,
-        last_user_answer: str,
-        turns: list[Turn],
-        attempt_index: int = 0,
-    ) -> CorrectionReply:
-        format_hint = self.answer_format_hint_for_dimension(target_dimension)
-        recent_turns = self.build_recent_turns_payload(turns, limit=8)
-
-        try:
-            reply = await self.openai_service.generate_correction_reply(
-                target_dimension=target_dimension,
-                last_user_answer=last_user_answer,
-                answer_format_hint=format_hint,
-                recent_turns=recent_turns,
-                attempt_index=attempt_index,
-            )
-            response = self._normalize_text_line(reply.response)
-            probe = self._sanitize_probe(reply.follow_up_probe)
-            if response:
-                return CorrectionReply(response=response, follow_up_probe=probe)
-        except OpenAIServiceError as exc:
-            logger.warning("Contextual correction generation failed, using fallback: %s", exc)
-
-        fallback_response = self.build_correction_message(
-            dimension=target_dimension,
-            last_user_answer=last_user_answer,
-            attempt_index=attempt_index,
-        )
-        fallback_probe = self.build_follow_up_probe(
-            target_dimension=target_dimension,
-            last_user_answer=last_user_answer,
-            attempt_index=attempt_index,
-        )
-        return CorrectionReply(response=fallback_response, follow_up_probe=fallback_probe)
 
     @classmethod
     def build_reflective_bridge(cls, last_user_answer: str) -> str | None:
         topic = cls._extract_topic_phrase(last_user_answer)
         if not topic:
             return None
-        return f"Понял, кейс про «{topic}»."
+        return f"Принял, кейс про «{topic}»."
 
     @staticmethod
-    def build_recent_turns_payload(turns: list[Turn], limit: int = 10) -> list[dict[str, str]]:
+    def build_recent_turns_payload(turns: list[Turn], limit: int = 12) -> list[dict[str, str]]:
         payload: list[dict[str, str]] = []
         for turn in turns[-limit:]:
             item = {
@@ -471,29 +403,28 @@ class DialogueManager:
         return payload
 
     @classmethod
-    def build_memory_points(cls, turns: list[Turn], limit: int = 6) -> list[str]:
+    def build_memory_points(cls, turns: list[Turn], limit: int = 8) -> list[str]:
         points: list[str] = []
         seen: set[str] = set()
 
         for turn in reversed(turns):
             if turn.role != "user" or turn.dimension is None:
                 continue
-            if cls.is_non_assessment_answer(turn.content):
+            if cls.is_low_signal_answer(turn.content):
                 continue
 
-            snippet_words = cls._normalize_text_line(turn.content).split()
-            if len(snippet_words) < 5:
+            words = cls._normalize_text_line(turn.content).split()
+            if len(words) < 6:
                 continue
 
-            snippet = " ".join(snippet_words[:20]).strip()
+            snippet = " ".join(words[:24])
             key = f"{turn.dimension}:{cls._normalize_for_compare(snippet)}"
-            if not snippet or key in seen:
+            if key in seen:
                 continue
 
             seen.add(key)
-            dim_name = DIMENSION_DISPLAY.get(turn.dimension, turn.dimension)
-            points.append(f"{dim_name}: {snippet}")
-
+            dimension_name = DIMENSION_DISPLAY.get(turn.dimension, turn.dimension)
+            points.append(f"{dimension_name}: {snippet}")
             if len(points) >= limit:
                 break
 
@@ -507,9 +438,9 @@ class DialogueManager:
     ) -> str:
         required_dimensions = required_dimensions_for_track(track)
 
-        for dim in HIGH_VARIANCE_PRIORITY:
-            if dim in required_dimensions and answered_dimensions.get(dim, 0) == 0:
-                return dim
+        for dimension in HIGH_VARIANCE_PRIORITY:
+            if dimension in required_dimensions and answered_dimensions.get(dimension, 0) == 0:
+                return dimension
 
         ranked = sorted(
             required_dimensions,
@@ -531,12 +462,14 @@ class DialogueManager:
         depth_points = sum(min(answered_dimensions.get(dim, 0), 2) for dim in required_dimensions)
         depth = depth_points / max(1, len(required_dimensions) * 2)
 
-        avg_len = 0.0
-        if user_turns:
-            avg_len = sum(len(turn.content.split()) for turn in user_turns) / len(user_turns)
-        clarity = min(avg_len / 60.0, 1.0)
+        good_turns = [
+            turn
+            for turn in user_turns
+            if turn.dimension is not None and not self.is_low_signal_answer(turn.content)
+        ]
+        quality = len(good_turns) / max(1, len(user_turns)) if user_turns else 0.0
 
-        confidence = (0.5 * coverage) + (0.3 * depth) + (0.2 * clarity)
+        confidence = (0.5 * coverage) + (0.3 * depth) + (0.2 * quality)
         return round(min(max(confidence, 0.0), 0.99), 3)
 
     def should_finish(
@@ -602,14 +535,14 @@ class DialogueManager:
     def _question_similarity(cls, left: str, right: str) -> float:
         left_tokens = cls._tokenize_for_similarity(left)
         right_tokens = cls._tokenize_for_similarity(right)
-
         if not left_tokens or not right_tokens:
             return 0.0
 
-        overlap = left_tokens & right_tokens
         union = left_tokens | right_tokens
         if not union:
             return 0.0
+
+        overlap = left_tokens & right_tokens
         return len(overlap) / len(union)
 
     @classmethod
@@ -618,10 +551,8 @@ class DialogueManager:
         if not q:
             return True
 
-        word_count = len(q.replace("?", "").split())
-        if word_count > 22:
+        if len(q.replace("?", "").split()) > 28:
             return True
-
         if q.count("?") > 1:
             return True
         if q.count(",") >= 3 or ";" in q:
@@ -630,145 +561,35 @@ class DialogueManager:
         return False
 
     @classmethod
-    def _fallback_probe_for_dimension(cls, target_dimension: str | None, variant_index: int = 0) -> str:
-        probes = FALLBACK_PROBE_BANK.get(target_dimension or "", [])
-        if probes:
-            return probes[variant_index % len(probes)]
-        return "Какой у вас был личный вклад и чем это закончилось для продукта?"
+    def _is_repeated_question(cls, question: str, turns: list[Turn], lookback: int = 10) -> bool:
+        normalized = cls._normalize_for_compare(question)
+        if not normalized:
+            return False
 
-    @classmethod
-    def _contextual_question_for_dimension(
-        cls,
-        target_dimension: str,
-        last_user_answer: str | None,
-    ) -> str | None:
-        topic = cls._extract_topic_phrase(last_user_answer or "")
-        if not topic:
-            return None
+        recent_questions = [
+            turn.content
+            for turn in turns[-lookback:]
+            if turn.role == "assistant" and turn.dimension is not None
+        ]
 
-        templates = {
-            "scope_responsibility": f"Вы упомянули «{topic}». Какой масштаб ответственности был на вашей стороне?",
-            "impact": f"В кейсе «{topic}» какой результат вы считаете главным?",
-            "uncertainty_tolerance": f"В ситуации «{topic}» где была главная неопределенность и как вы ее закрывали?",
-            "planning_horizon": f"Для кейса «{topic}» как вы планировали этапы вперед?",
-            "hard_product_business": f"Если взять «{topic}», как вы балансировали пользовательскую ценность и бизнес-цель?",
-            "soft_communication_influence": f"В кейсе «{topic}» как вы повлияли на решение команды?",
-            "management": f"В контексте «{topic}» как вы управляли людьми и развитием команды?",
-        }
+        for recent in recent_questions:
+            recent_normalized = cls._normalize_for_compare(recent)
+            if not recent_normalized:
+                continue
+            if normalized == recent_normalized:
+                return True
+            if normalized in recent_normalized or recent_normalized in normalized:
+                return True
+            if cls._question_similarity(question, recent) >= 0.72:
+                return True
 
-        return templates.get(target_dimension)
-
-    @classmethod
-    def _fallback_question_for_dimension(
-        cls,
-        target_dimension: str,
-        variant_index: int = 0,
-        last_user_answer: str | None = None,
-    ) -> NextQuestion:
-        contextual_question = cls._contextual_question_for_dimension(target_dimension, last_user_answer)
-        if contextual_question:
-            return NextQuestion(
-                question=contextual_question,
-                follow_up_probe=cls._fallback_probe_for_dimension(target_dimension, variant_index),
-            )
-
-        questions = FALLBACK_QUESTION_BANK.get(target_dimension, [])
-        if questions:
-            question = questions[variant_index % len(questions)]
-        else:
-            question = "Расскажите о недавнем сложном кейсе и вашей роли в нем."
-
-        return NextQuestion(
-            question=question,
-            follow_up_probe=cls._fallback_probe_for_dimension(target_dimension, variant_index),
-        )
-
-    @classmethod
-    def _fallback_non_repeated_question_for_dimension(
-        cls,
-        target_dimension: str,
-        turns: list[Turn],
-        variant_index: int = 0,
-        last_user_answer: str | None = None,
-    ) -> NextQuestion:
-        for offset in range(6):
-            candidate = cls._fallback_question_for_dimension(
-                target_dimension=target_dimension,
-                variant_index=variant_index + offset,
-                last_user_answer=last_user_answer,
-            )
-            if not cls._is_repeated_question(candidate.question, turns):
-                return candidate
-
-        return cls._fallback_question_for_dimension(
-            target_dimension=target_dimension,
-            variant_index=variant_index,
-            last_user_answer=last_user_answer,
-        )
-
-    @classmethod
-    def _extract_topic_phrase(cls, text: str, max_words: int = 6) -> str:
-        if cls.is_non_assessment_answer(text):
-            return ""
-
-        cleaned = re.sub(r"\s+", " ", text).strip()
-        cleaned = re.sub(r"[^\w\s-]", "", cleaned)
-        words = [w for w in cleaned.split() if len(w) > 1]
-        if len(words) < 2:
-            return ""
-        return " ".join(words[:max_words])
-
-    def build_follow_up_probe(
-        self,
-        target_dimension: str | None,
-        last_user_answer: str,
-        attempt_index: int = 0,
-    ) -> str:
-        topic = self._extract_topic_phrase(last_user_answer)
-        if topic and target_dimension in {"impact", "scope_responsibility", "uncertainty_tolerance", "management"}:
-            contextual_templates = [
-                f"Если взять кейс «{topic}», что сделали лично вы и что изменилось в результате?",
-                f"В примере «{topic}» какое решение было именно вашим?",
-            ]
-            return contextual_templates[attempt_index % len(contextual_templates)]
-
-        return self._fallback_probe_for_dimension(target_dimension, attempt_index)
-
-    @classmethod
-    def _sanitize_question(
-        cls,
-        question: str,
-        target_dimension: str,
-        variant_index: int = 0,
-        last_user_answer: str | None = None,
-    ) -> str:
-        q = cls._normalize_text_line(question)
-
-        if "?" in q:
-            q = q.split("?", 1)[0].strip()
-        if not q:
-            return cls._fallback_question_for_dimension(
-                target_dimension,
-                variant_index,
-                last_user_answer=last_user_answer,
-            ).question
-
-        if cls._is_complex_question(q):
-            return cls._fallback_question_for_dimension(
-                target_dimension,
-                variant_index,
-                last_user_answer=last_user_answer,
-            ).question
-
-        if not q.endswith("?"):
-            q = q.rstrip(".!") + "?"
-
-        return q
+        return False
 
     @classmethod
     def _sanitize_probe(cls, probe: str | None) -> str | None:
         if not probe:
             return None
+
         p = cls._normalize_text_line(probe)
         if not p:
             return None
@@ -783,36 +604,66 @@ class DialogueManager:
         return p
 
     @classmethod
-    def _is_repeated_question(cls, question: str, turns: list[Turn], lookback: int = 8) -> bool:
-        normalized = cls._normalize_for_compare(question)
-        if not normalized:
-            return False
+    def _fallback_probe_for_dimension(cls, target_dimension: str | None, variant_index: int = 0) -> str:
+        probes = FALLBACK_PROBE_BANK.get(target_dimension or "", [])
+        if probes:
+            return probes[variant_index % len(probes)]
+        return "Уточните, пожалуйста: что сделали лично вы и к какому результату это привело?"
 
-        recent_assistant_questions = [
-            turn.content
-            for turn in turns[-lookback:]
-            if turn.role == "assistant"
-        ]
+    @classmethod
+    def _fallback_question_for_dimension(
+        cls,
+        target_dimension: str,
+        turns: list[Turn],
+        variant_index: int = 0,
+    ) -> NextQuestion:
+        questions = FALLBACK_QUESTION_BANK.get(target_dimension, [])
+        if not questions:
+            questions = ["Расскажите о недавнем сложном кейсе и вашем личном вкладе в результат."]
 
-        for recent in recent_assistant_questions:
-            recent_normalized = cls._normalize_for_compare(recent)
-            if not recent_normalized:
-                continue
-            if normalized == recent_normalized:
-                return True
-            if normalized in recent_normalized or recent_normalized in normalized:
-                return True
-            if cls._question_similarity(question, recent) >= 0.72:
-                return True
+        for offset in range(len(questions)):
+            candidate = questions[(variant_index + offset) % len(questions)]
+            if not cls._is_repeated_question(candidate, turns):
+                return NextQuestion(
+                    question=candidate,
+                    follow_up_probe=cls._fallback_probe_for_dimension(target_dimension, variant_index + offset),
+                )
 
-        return False
+        return NextQuestion(
+            question=questions[variant_index % len(questions)],
+            follow_up_probe=cls._fallback_probe_for_dimension(target_dimension, variant_index),
+        )
+
+    @classmethod
+    def _sanitize_question(
+        cls,
+        question: str,
+        target_dimension: str,
+        turns: list[Turn],
+        variant_index: int = 0,
+    ) -> str:
+        q = cls._normalize_text_line(question)
+        if not q:
+            return cls._fallback_question_for_dimension(target_dimension, turns, variant_index).question
+
+        if "?" in q:
+            q = q.split("?", 1)[0].strip()
+
+        if not q:
+            return cls._fallback_question_for_dimension(target_dimension, turns, variant_index).question
+
+        if not q.endswith("?"):
+            q = q.rstrip(".!") + "?"
+
+        if cls._is_complex_question(q) or cls._is_repeated_question(q, turns):
+            return cls._fallback_question_for_dimension(target_dimension, turns, variant_index).question
+
+        return q
 
     @classmethod
     def _last_user_assessment_answer(cls, turns: list[Turn]) -> str:
         for turn in reversed(turns):
-            if turn.role != "user":
-                continue
-            if turn.dimension is None:
+            if turn.role != "user" or turn.dimension is None:
                 continue
             if cls.is_non_assessment_answer(turn.content):
                 continue
@@ -820,6 +671,59 @@ class DialogueManager:
             if content:
                 return content
         return ""
+
+    def build_follow_up_probe(
+        self,
+        target_dimension: str | None,
+        last_user_answer: str,
+        attempt_index: int = 0,
+    ) -> str:
+        topic = self._extract_topic_phrase(last_user_answer)
+        if topic:
+            contextual = [
+                f"Если взять кейс «{topic}», что сделали лично вы и какой был результат?",
+                f"В примере «{topic}» какая часть решения была именно вашей?",
+            ]
+            return contextual[attempt_index % len(contextual)]
+
+        return self._fallback_probe_for_dimension(target_dimension, attempt_index)
+
+    async def generate_contextual_correction(
+        self,
+        target_dimension: str | None,
+        last_user_answer: str,
+        turns: list[Turn],
+        attempt_index: int = 0,
+    ) -> CorrectionReply:
+        format_hint = self.answer_format_hint_for_dimension(target_dimension)
+        recent_turns = self.build_recent_turns_payload(turns, limit=10)
+
+        try:
+            reply = await self.openai_service.generate_correction_reply(
+                target_dimension=target_dimension,
+                last_user_answer=last_user_answer,
+                answer_format_hint=format_hint,
+                recent_turns=recent_turns,
+                attempt_index=attempt_index,
+            )
+            response = self._normalize_text_line(reply.response)
+            probe = self._sanitize_probe(reply.follow_up_probe)
+            if response:
+                return CorrectionReply(response=response, follow_up_probe=probe)
+        except OpenAIServiceError as exc:
+            logger.warning("Contextual correction generation failed, using fallback: %s", exc)
+
+        fallback_response = self.build_correction_message(
+            dimension=target_dimension,
+            last_user_answer=last_user_answer,
+            attempt_index=attempt_index,
+        )
+        fallback_probe = self.build_follow_up_probe(
+            target_dimension=target_dimension,
+            last_user_answer=last_user_answer,
+            attempt_index=attempt_index,
+        )
+        return CorrectionReply(response=fallback_response, follow_up_probe=fallback_probe)
 
     async def generate_assessment_question(
         self,
@@ -830,8 +734,13 @@ class DialogueManager:
     ) -> tuple[str, NextQuestion]:
         target_dimension = self.choose_next_dimension(session.track_preference, answered_dimensions)
         dimension_matrix = self.matrix["dimensions"][target_dimension]
-        recent_turns = self.build_recent_turns_payload(turns, limit=10)
-        memory_points = self.build_memory_points(turns, limit=6)
+        recent_turns = self.build_recent_turns_payload(turns, limit=12)
+        memory_points = self.build_memory_points(turns, limit=8)
+        recent_assistant_questions = [
+            turn.content
+            for turn in turns
+            if turn.role == "assistant" and turn.dimension is not None
+        ][-8:]
 
         asked_for_dimension = sum(
             1
@@ -847,45 +756,27 @@ class DialogueManager:
                 profile=profile,
                 evidence_summary=session.evidence_summary,
                 recent_turns=recent_turns,
+                recent_assistant_questions=recent_assistant_questions,
                 dimension_matrix=dimension_matrix,
                 memory_points=memory_points,
                 last_user_answer=last_user_answer,
             )
         except OpenAIServiceError as exc:
-            logger.warning(
-                "Question generation failed for %s, using fallback: %s",
-                target_dimension,
-                exc,
-            )
-            fallback = self._fallback_non_repeated_question_for_dimension(
-                target_dimension,
-                turns,
-                asked_for_dimension,
-                last_user_answer=last_user_answer,
-            )
+            logger.warning("Question generation failed for %s, using fallback: %s", target_dimension, exc)
+            fallback = self._fallback_question_for_dimension(target_dimension, turns, asked_for_dimension)
             return target_dimension, fallback
 
         question = self._sanitize_question(
             raw_question.question,
             target_dimension,
+            turns,
             asked_for_dimension,
-            last_user_answer=last_user_answer,
         )
         probe = self._sanitize_probe(raw_question.follow_up_probe)
 
-        if self._is_complex_question(question) or self._is_repeated_question(question, turns):
-            fallback = self._fallback_non_repeated_question_for_dimension(
-                target_dimension,
-                turns,
-                asked_for_dimension,
-                last_user_answer=last_user_answer,
-            )
-            question = fallback.question
-            probe = probe or fallback.follow_up_probe
-
         if not probe:
             probe = self.build_follow_up_probe(
-                target_dimension,
+                target_dimension=target_dimension,
                 last_user_answer=last_user_answer,
                 attempt_index=0,
             )
@@ -898,7 +789,7 @@ class DialogueManager:
         turns: list[Turn],
     ) -> tuple[str, int] | None:
         unsummarized_turns = turns[session.summarized_turn_count :]
-        if len(unsummarized_turns) < 6:
+        if len(unsummarized_turns) < 8:
             return None
 
         payload = [

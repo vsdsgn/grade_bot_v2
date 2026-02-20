@@ -8,7 +8,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
 from .config import MATRIX_PATH
-from .constants import DIMENSION_DISPLAY, PROFILE_FIELDS, WARMUP_QUESTIONS
+from .constants import DIMENSION_DISPLAY, WARMUP_QUESTIONS
 from .database import Database
 from .dialogue import DialogueManager
 from .grading import GradeEngine
@@ -56,24 +56,6 @@ def _latest_assistant_dimension(turns: list[Turn]) -> str | None:
         if turn.role == "assistant" and turn.dimension:
             return turn.dimension
     return None
-
-
-def _build_warmup_question(index: int, profile: dict[str, Any]) -> str:
-    role = str(profile.get("current_role", "")).strip()
-    domain = str(profile.get("domain_and_users", "")).strip()
-
-    if index <= 0:
-        return "Коротко: какая у вас сейчас роль и зона ответственности?"
-    if index == 1:
-        if role:
-            return f"Принял. По роли «{role}» расскажите: в каком продукте вы работаете и кто ваш ключевой пользователь?"
-        return "В каком продукте вы работаете и кто ваш ключевой пользователь?"
-    if index == 2:
-        if domain:
-            return f"Понял контекст по продукту. Сколько лет вы в продукте и какой трек вам ближе: IC или менеджмент?"
-        return "Сколько лет в продукте и какой трек вам ближе: IC или менеджмент?"
-
-    return "Добавьте, пожалуйста, немного контекста по текущей роли."
 
 
 def _probe_key(session_id: int, dimension: str | None) -> str:
@@ -253,12 +235,6 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             await update.effective_message.reply_text("Активной сессии нет. Напишите /start, чтобы начать.")
         return
 
-    if session.warmup_index < len(WARMUP_QUESTIONS):
-        await update.effective_message.reply_text(
-            f"Идет вводный блок: отвечено {session.warmup_index}/{len(WARMUP_QUESTIONS)}."
-        )
-        return
-
     answered = db.get_answered_dimensions(session.id)
     snapshot = dialogue.progress_snapshot(session, session.track_preference, answered)
     covered_names = [DIMENSION_DISPLAY.get(d, d) for d in snapshot.covered_dimensions]
@@ -286,12 +262,6 @@ async def result_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
     active = db.get_active_session(update.effective_user.id)
     if active is not None:
-        if active.warmup_index < len(WARMUP_QUESTIONS):
-            await update.effective_message.reply_text(
-                "Ассессмент еще не завершен. Сначала пройдите вводные и интервью-вопросы."
-            )
-            return
-
         answered = db.get_answered_dimensions(active.id)
         required = required_dimensions_for_track(active.track_preference)
         missing = [DIMENSION_DISPLAY.get(d, d) for d in required if answered.get(d, 0) == 0]
@@ -329,12 +299,13 @@ async def _start_assessment(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         return
 
     session = db.create_session(update.effective_user.id, max_questions=max_questions)
+    db.set_warmup_index(session.id, len(WARMUP_QUESTIONS))
+    session = db.get_session(session.id) or session
 
-    first_q = _build_warmup_question(0, profile={})
-    db.append_turn(session.id, role="assistant", content=first_q, dimension=None)
     await update.effective_message.reply_text(
-        "Начинаем. Отвечайте как в живом интервью: конкретные кейсы и ваш личный вклад.\n" + first_q
+        "Начинаем интервью для грейдирования. Формат: один вопрос за раз, опора на ваши ответы, без повторов."
     )
+    await _ask_first_assessment_question(update, context, session)
 
 
 async def start_assessment_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -450,60 +421,14 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
     invalid_key = _invalid_key(session.id)
 
     try:
-        if session.warmup_index < len(WARMUP_QUESTIONS):
-            if dialogue.is_non_assessment_answer(text):
-                db.append_turn(session.id, role="user", content=text, dimension=None)
-                tries = int(invalid_attempts.get(invalid_key, 0)) + 1
-                invalid_attempts[invalid_key] = tries
-
-                warmup_hints = [
-                    "Нужен короткий фактический ответ: текущая роль и зона ответственности.",
-                    "Нужен контекст: в каком продукте вы работаете и кто ваш пользователь.",
-                    "Нужен факт: ваш опыт в продукте и предпочитаемый трек (IC или менеджмент).",
-                ]
-                hint = warmup_hints[min(session.warmup_index, len(warmup_hints) - 1)]
-
-                if tries >= 3:
-                    await update.effective_message.reply_text(
-                        "Пока недостаточно осмысленных ответов для старта интервью. Когда будете готовы, напишите /reset и начнем заново."
-                    )
-                else:
-                    await update.effective_message.reply_text("Похоже, ответ не по теме. " + hint)
-                return
-
-            invalid_attempts.pop(invalid_key, None)
-
-            warmup_idx = session.warmup_index
-            db.append_turn(session.id, role="user", content=text, dimension=None)
-            db.update_profile_field(session.id, PROFILE_FIELDS[warmup_idx], text)
-            db.increment_warmup_index(session.id)
-
-            if warmup_idx == len(WARMUP_QUESTIONS) - 1:
-                track_pref = dialogue.infer_track_preference(text)
-                db.update_track_preference(session.id, track_pref)
-
-            session = db.get_session(session.id)
-            if session is None:
-                raise RuntimeError("Session disappeared")
-
-            if session.warmup_index < len(WARMUP_QUESTIONS):
-                profile = dialogue.extract_profile(session)
-                next_warmup = _build_warmup_question(session.warmup_index, profile)
-                db.append_turn(session.id, role="assistant", content=next_warmup, dimension=None)
-                await update.effective_message.reply_text(next_warmup)
-                return
-
-            await update.effective_message.reply_text(
-                "Спасибо, контекст понятен. Дальше вопросы будут адаптироваться под ваши ответы."
-            )
-            await _ask_first_assessment_question(update, context, session)
-            return
-
         turns_before_user = db.list_turns(session.id)
         current_dimension = _latest_assistant_dimension(turns_before_user)
         quality_key = _quality_key(session.id, current_dimension)
+        is_non_assessment = dialogue.is_non_assessment_answer(text)
+        is_low_signal = dialogue.is_low_signal_answer(text)
+        is_frustrated = dialogue.is_frustrated_answer(text)
 
-        if dialogue.is_non_assessment_answer(text):
+        if is_non_assessment:
             db.append_turn(session.id, role="user", content=text, dimension=None)
             tries = int(invalid_attempts.get(invalid_key, 0)) + 1
             invalid_attempts[invalid_key] = tries
@@ -511,11 +436,11 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
             attempts_for_dimension = int(quality_attempts.get(quality_key, 0))
             quality_attempts[quality_key] = attempts_for_dimension + 1
 
-            if tries >= 4:
+            if tries >= 5:
                 response = (
-                    "Пока мало фактов для точной оценки. "
-                    "Чтобы продолжить, дайте один реальный кейс в формате: контекст -> ваш личный вклад -> результат. "
-                    "Если хотите начать с чистого листа, используйте /reset."
+                    "Сейчас в ответах мало данных для интервью. "
+                    "Чтобы продолжить, дайте один реальный кейс: контекст -> ваши действия -> результат. "
+                    "Если хотите перезапуск, используйте /reset."
                 )
             else:
                 correction_reply = await dialogue.generate_contextual_correction(
@@ -534,7 +459,7 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
             await update.effective_message.reply_text(response)
             return
 
-        if dialogue.is_low_signal_answer(text):
+        if is_low_signal:
             db.append_turn(session.id, role="user", content=text, dimension=None)
             tries = int(invalid_attempts.get(invalid_key, 0)) + 1
             invalid_attempts[invalid_key] = tries
@@ -542,9 +467,9 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
             attempts_for_dimension = int(quality_attempts.get(quality_key, 0))
             quality_attempts[quality_key] = attempts_for_dimension + 1
 
-            if tries >= 4:
+            if tries >= 5:
                 response = (
-                    "Пока фактов недостаточно, поэтому уверенность оценки падает. "
+                    "Пока фактов недостаточно для точного грейдирования. "
                     "Нужен один конкретный кейс в 2-4 предложениях: контекст -> ваши действия -> результат. "
                     "Если хотите перезапуск, используйте /reset."
                 )
@@ -564,6 +489,11 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
             pending_probes[session.id] = None
             await update.effective_message.reply_text(response)
             return
+
+        if session.track_preference is None:
+            inferred_track = dialogue.infer_track_preference(text)
+            if inferred_track in {"IC", "M"}:
+                db.update_track_preference(session.id, inferred_track)
 
         invalid_attempts.pop(invalid_key, None)
         quality_attempts.pop(quality_key, None)
@@ -610,7 +540,6 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
                 "Пока мало данных для оценки. Нужен более конкретный кейс: контекст, ваш вклад, результат."
             )
 
-        is_frustrated = dialogue.is_frustrated_answer(text)
         use_probe = (not is_frustrated) and dialogue.is_vague_answer(text)
 
         if use_probe and current_dimension:
@@ -652,7 +581,7 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
         pending_probes[session.id] = next_question.follow_up_probe
 
         if is_frustrated:
-            await update.effective_message.reply_text("Понял. Сменим угол и двинемся дальше.")
+            await update.effective_message.reply_text("Принял. Сменю угол вопроса и двигаемся дальше.")
         await update.effective_message.reply_text(next_question.question)
 
     except OpenAIServiceError as exc:

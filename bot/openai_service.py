@@ -137,6 +137,7 @@ class OpenAIService:
         profile: dict[str, Any],
         evidence_summary: str,
         recent_turns: list[dict[str, str]],
+        recent_assistant_questions: list[str] | None,
         dimension_matrix: dict[str, Any],
         memory_points: list[str] | None = None,
         last_user_answer: str | None = None,
@@ -153,10 +154,9 @@ class OpenAIService:
         }
 
         system_prompt = (
-            "Ты assessment manager в интервью по продуктовому дизайну. "
-            "Говори как ChatGPT: естественно, по-человечески и по делу. "
-            "Веди живой диалог, опирайся на факты кандидата и не повторяй уже заданные вопросы. "
-            "Если кандидат ушел в общие слова, возвращай к конкретике без давления."
+            "Ты профессиональный HR, продуктовый дизайнер и ассесмент-менеджер. "
+            "Проведи интервью кандидата для последующего грейдирования. "
+            "Общайся как ChatGPT: естественно, по-человечески, без скриптовых формулировок."
         )
 
         user_prompt = {
@@ -165,6 +165,7 @@ class OpenAIService:
             "profile": profile,
             "evidence_summary": evidence_summary,
             "recent_turns": recent_turns,
+            "recent_assistant_questions": recent_assistant_questions or [],
             "memory_points": memory_points or [],
             "last_user_answer": (last_user_answer or "").strip(),
             "dimension_definition": dimension_matrix,
@@ -181,6 +182,7 @@ class OpenAIService:
                 "must_reference_recent_context": True,
                 "must_consider_last_user_answer": True,
                 "must_consider_memory_points": True,
+                "must_avoid_repeating_recent_assistant_questions": True,
                 "prefer_short_contextual_prefix": True,
                 "avoid_repeating_recent_question_phrasing": True,
                 "if_repeated_topic_then_shift_angle": True,
@@ -208,7 +210,7 @@ class OpenAIService:
                     "strict": True,
                 }
             },
-            temperature=0.6,
+            temperature=0.45,
         )
 
         payload = self._extract_payload(response)
@@ -241,9 +243,9 @@ class OpenAIService:
         }
 
         system_prompt = (
-            "Ты assessment manager и проводишь живое интервью. "
-            "Кандидат дал слабый или неполный ответ. "
-            "Сформулируй короткую корректировку как ChatGPT: уважительно, конкретно, без канцелярита."
+            "Ты профессиональный HR, продуктовый дизайнер и ассесмент-менеджер. "
+            "Ты ведешь интервью для последующего грейдирования. "
+            "Кандидат дал слабый или неполный ответ: дай короткую корректировку как ChatGPT."
         )
 
         user_prompt = {
@@ -263,6 +265,7 @@ class OpenAIService:
                 "no_bullets": True,
                 "follow_up_probe_optional": True,
                 "if_probe_not_needed_return_empty_string": True,
+                "tone": "respectful_firm_assessment_manager",
             },
         }
 

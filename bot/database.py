@@ -250,6 +250,13 @@ class Database:
                 (session_id,),
             )
 
+    def set_warmup_index(self, session_id: int, value: int) -> None:
+        with self._connect() as conn:
+            conn.execute(
+                "UPDATE sessions SET warmup_index = ? WHERE id = ?",
+                (value, session_id),
+            )
+
     def increment_question_count(self, session_id: int) -> None:
         with self._connect() as conn:
             conn.execute(
