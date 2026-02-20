@@ -43,6 +43,12 @@ class NextQuestion:
 
 
 @dataclass(slots=True)
+class CorrectionReply:
+    response: str
+    follow_up_probe: str | None
+
+
+@dataclass(slots=True)
 class ReportArtifacts:
     report_json: dict[str, Any]
     markdown: str

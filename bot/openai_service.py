@@ -9,7 +9,7 @@ from typing import Any
 from openai import APIError, APITimeoutError, AsyncOpenAI, RateLimitError
 
 from .constants import DIMENSIONS, DIMENSION_DISPLAY, LEVELS
-from .models import NextQuestion
+from .models import CorrectionReply, NextQuestion
 
 logger = logging.getLogger(__name__)
 
@@ -138,6 +138,7 @@ class OpenAIService:
         evidence_summary: str,
         recent_turns: list[dict[str, str]],
         dimension_matrix: dict[str, Any],
+        memory_points: list[str] | None = None,
         last_user_answer: str | None = None,
     ) -> NextQuestion:
         schema = {
@@ -152,11 +153,10 @@ class OpenAIService:
         }
 
         system_prompt = (
-            "Ты опытный интервьюер по продуктовому дизайну. "
-            "Веди разговор на русском, как живой диалог. "
-            "Каждый следующий вопрос опирай на контекст последних ответов кандидата. "
-            "Не повторяй формулировки недавних вопросов и избегай канцелярита. "
-            "Один вопрос, один фокус, без длинных перечислений."
+            "Ты assessment manager в интервью по продуктовому дизайну. "
+            "Говори как ChatGPT: естественно, по-человечески и по делу. "
+            "Веди живой диалог, опирайся на факты кандидата и не повторяй уже заданные вопросы. "
+            "Если кандидат ушел в общие слова, возвращай к конкретике без давления."
         )
 
         user_prompt = {
@@ -165,22 +165,25 @@ class OpenAIService:
             "profile": profile,
             "evidence_summary": evidence_summary,
             "recent_turns": recent_turns,
+            "memory_points": memory_points or [],
             "last_user_answer": (last_user_answer or "").strip(),
             "dimension_definition": dimension_matrix,
             "constraints": {
-                "question_max_words": 20,
+                "question_max_words": 26,
                 "one_question_only": True,
                 "follow_up_probe_optional": True,
                 "follow_up_probe_empty_string_if_not_needed": True,
                 "no_scoring": True,
                 "language": "ru",
-                "style": "natural_human_dialogue",
+                "style": "assessment_manager_chatgpt_like",
                 "no_multi_part_question": True,
                 "no_complex_clauses": True,
                 "must_reference_recent_context": True,
                 "must_consider_last_user_answer": True,
+                "must_consider_memory_points": True,
                 "prefer_short_contextual_prefix": True,
                 "avoid_repeating_recent_question_phrasing": True,
+                "if_repeated_topic_then_shift_angle": True,
                 "avoid_generic_probe_phrase": "Можете привести один конкретный пример",
             },
         }
@@ -205,7 +208,7 @@ class OpenAIService:
                     "strict": True,
                 }
             },
-            temperature=0.75,
+            temperature=0.6,
         )
 
         payload = self._extract_payload(response)
@@ -217,6 +220,84 @@ class OpenAIService:
             raise OpenAIServiceError("Model returned an empty question")
 
         return NextQuestion(question=question, follow_up_probe=follow_up_probe)
+
+    async def generate_correction_reply(
+        self,
+        target_dimension: str | None,
+        last_user_answer: str,
+        answer_format_hint: str,
+        recent_turns: list[dict[str, str]],
+        attempt_index: int = 0,
+    ) -> CorrectionReply:
+        schema = {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["response", "follow_up_probe"],
+            "properties": {
+                "response": {"type": "string"},
+                # Empty string means no probe.
+                "follow_up_probe": {"type": "string"},
+            },
+        }
+
+        system_prompt = (
+            "Ты assessment manager и проводишь живое интервью. "
+            "Кандидат дал слабый или неполный ответ. "
+            "Сформулируй короткую корректировку как ChatGPT: уважительно, конкретно, без канцелярита."
+        )
+
+        user_prompt = {
+            "target_dimension": target_dimension,
+            "target_dimension_display": DIMENSION_DISPLAY.get(target_dimension or "", target_dimension or ""),
+            "last_user_answer": last_user_answer,
+            "answer_format_hint": answer_format_hint,
+            "recent_turns": recent_turns,
+            "attempt_index": attempt_index,
+            "constraints": {
+                "language": "ru",
+                "response_max_words": 34,
+                "start_with_short_acknowledgement": True,
+                "mention_missing_signal": ["context", "personal_contribution", "result"],
+                "one_clear_next_step": True,
+                "no_shaming": True,
+                "no_bullets": True,
+                "follow_up_probe_optional": True,
+                "if_probe_not_needed_return_empty_string": True,
+            },
+        }
+
+        response = await self._responses_create_with_retry(
+            model=self.model,
+            input=[
+                {
+                    "role": "system",
+                    "content": [{"type": "input_text", "text": system_prompt}],
+                },
+                {
+                    "role": "user",
+                    "content": [{"type": "input_text", "text": json.dumps(user_prompt, ensure_ascii=True)}],
+                },
+            ],
+            text={
+                "format": {
+                    "type": "json_schema",
+                    "name": "correction_reply_payload",
+                    "schema": schema,
+                    "strict": True,
+                }
+            },
+            temperature=0.45,
+        )
+
+        payload = self._extract_payload(response)
+        text = str(payload.get("response", "")).strip()
+        probe = str(payload.get("follow_up_probe", "")).strip()
+        follow_up_probe = probe if probe else None
+
+        if not text:
+            raise OpenAIServiceError("Model returned an empty correction reply")
+
+        return CorrectionReply(response=text, follow_up_probe=follow_up_probe)
 
     async def summarize_evidence(
         self,

@@ -8,7 +8,7 @@ from typing import Any
 
 from .constants import DIMENSION_DISPLAY, HIGH_VARIANCE_PRIORITY
 from .matrix import required_dimensions_for_track
-from .models import NextQuestion, Session, Turn
+from .models import CorrectionReply, NextQuestion, Session, Turn
 from .openai_service import OpenAIService, OpenAIServiceError
 
 logger = logging.getLogger(__name__)
@@ -175,6 +175,40 @@ OBSCENE_PATTERNS = [
     r"\bdick",
     r"\bcock",
 ]
+
+QUESTION_SIMILARITY_STOPWORDS = {
+    "как",
+    "что",
+    "какой",
+    "какая",
+    "какие",
+    "когда",
+    "где",
+    "почему",
+    "зачем",
+    "ли",
+    "это",
+    "этот",
+    "эта",
+    "эти",
+    "для",
+    "в",
+    "на",
+    "по",
+    "и",
+    "но",
+    "или",
+    "а",
+    "you",
+    "the",
+    "a",
+    "an",
+    "is",
+    "are",
+    "to",
+    "of",
+    "in",
+}
 
 
 @dataclass(slots=True)
@@ -379,6 +413,43 @@ class DialogueManager:
             + "Без конкретики оценка будет неточной. Нужен один кейс в 2-4 предложениях: контекст -> ваш вклад -> результат."
         )
 
+    async def generate_contextual_correction(
+        self,
+        target_dimension: str | None,
+        last_user_answer: str,
+        turns: list[Turn],
+        attempt_index: int = 0,
+    ) -> CorrectionReply:
+        format_hint = self.answer_format_hint_for_dimension(target_dimension)
+        recent_turns = self.build_recent_turns_payload(turns, limit=8)
+
+        try:
+            reply = await self.openai_service.generate_correction_reply(
+                target_dimension=target_dimension,
+                last_user_answer=last_user_answer,
+                answer_format_hint=format_hint,
+                recent_turns=recent_turns,
+                attempt_index=attempt_index,
+            )
+            response = self._normalize_text_line(reply.response)
+            probe = self._sanitize_probe(reply.follow_up_probe)
+            if response:
+                return CorrectionReply(response=response, follow_up_probe=probe)
+        except OpenAIServiceError as exc:
+            logger.warning("Contextual correction generation failed, using fallback: %s", exc)
+
+        fallback_response = self.build_correction_message(
+            dimension=target_dimension,
+            last_user_answer=last_user_answer,
+            attempt_index=attempt_index,
+        )
+        fallback_probe = self.build_follow_up_probe(
+            target_dimension=target_dimension,
+            last_user_answer=last_user_answer,
+            attempt_index=attempt_index,
+        )
+        return CorrectionReply(response=fallback_response, follow_up_probe=fallback_probe)
+
     @classmethod
     def build_reflective_bridge(cls, last_user_answer: str) -> str | None:
         topic = cls._extract_topic_phrase(last_user_answer)
@@ -398,6 +469,36 @@ class DialogueManager:
                 item["dimension"] = turn.dimension
             payload.append(item)
         return payload
+
+    @classmethod
+    def build_memory_points(cls, turns: list[Turn], limit: int = 6) -> list[str]:
+        points: list[str] = []
+        seen: set[str] = set()
+
+        for turn in reversed(turns):
+            if turn.role != "user" or turn.dimension is None:
+                continue
+            if cls.is_non_assessment_answer(turn.content):
+                continue
+
+            snippet_words = cls._normalize_text_line(turn.content).split()
+            if len(snippet_words) < 5:
+                continue
+
+            snippet = " ".join(snippet_words[:20]).strip()
+            key = f"{turn.dimension}:{cls._normalize_for_compare(snippet)}"
+            if not snippet or key in seen:
+                continue
+
+            seen.add(key)
+            dim_name = DIMENSION_DISPLAY.get(turn.dimension, turn.dimension)
+            points.append(f"{dim_name}: {snippet}")
+
+            if len(points) >= limit:
+                break
+
+        points.reverse()
+        return points
 
     def choose_next_dimension(
         self,
@@ -492,6 +593,26 @@ class DialogueManager:
         return normalized.strip()
 
     @classmethod
+    def _tokenize_for_similarity(cls, text: str) -> set[str]:
+        normalized = cls._normalize_for_compare(text)
+        tokens = {token for token in normalized.split() if len(token) > 2}
+        return {token for token in tokens if token not in QUESTION_SIMILARITY_STOPWORDS}
+
+    @classmethod
+    def _question_similarity(cls, left: str, right: str) -> float:
+        left_tokens = cls._tokenize_for_similarity(left)
+        right_tokens = cls._tokenize_for_similarity(right)
+
+        if not left_tokens or not right_tokens:
+            return 0.0
+
+        overlap = left_tokens & right_tokens
+        union = left_tokens | right_tokens
+        if not union:
+            return 0.0
+        return len(overlap) / len(union)
+
+    @classmethod
     def _is_complex_question(cls, question: str) -> bool:
         q = cls._normalize_text_line(question)
         if not q:
@@ -560,6 +681,29 @@ class DialogueManager:
         return NextQuestion(
             question=question,
             follow_up_probe=cls._fallback_probe_for_dimension(target_dimension, variant_index),
+        )
+
+    @classmethod
+    def _fallback_non_repeated_question_for_dimension(
+        cls,
+        target_dimension: str,
+        turns: list[Turn],
+        variant_index: int = 0,
+        last_user_answer: str | None = None,
+    ) -> NextQuestion:
+        for offset in range(6):
+            candidate = cls._fallback_question_for_dimension(
+                target_dimension=target_dimension,
+                variant_index=variant_index + offset,
+                last_user_answer=last_user_answer,
+            )
+            if not cls._is_repeated_question(candidate.question, turns):
+                return candidate
+
+        return cls._fallback_question_for_dimension(
+            target_dimension=target_dimension,
+            variant_index=variant_index,
+            last_user_answer=last_user_answer,
         )
 
     @classmethod
@@ -645,12 +789,23 @@ class DialogueManager:
             return False
 
         recent_assistant_questions = [
-            cls._normalize_for_compare(turn.content)
+            turn.content
             for turn in turns[-lookback:]
             if turn.role == "assistant"
         ]
 
-        return normalized in recent_assistant_questions
+        for recent in recent_assistant_questions:
+            recent_normalized = cls._normalize_for_compare(recent)
+            if not recent_normalized:
+                continue
+            if normalized == recent_normalized:
+                return True
+            if normalized in recent_normalized or recent_normalized in normalized:
+                return True
+            if cls._question_similarity(question, recent) >= 0.72:
+                return True
+
+        return False
 
     @classmethod
     def _last_user_assessment_answer(cls, turns: list[Turn]) -> str:
@@ -676,6 +831,7 @@ class DialogueManager:
         target_dimension = self.choose_next_dimension(session.track_preference, answered_dimensions)
         dimension_matrix = self.matrix["dimensions"][target_dimension]
         recent_turns = self.build_recent_turns_payload(turns, limit=10)
+        memory_points = self.build_memory_points(turns, limit=6)
 
         asked_for_dimension = sum(
             1
@@ -692,6 +848,7 @@ class DialogueManager:
                 evidence_summary=session.evidence_summary,
                 recent_turns=recent_turns,
                 dimension_matrix=dimension_matrix,
+                memory_points=memory_points,
                 last_user_answer=last_user_answer,
             )
         except OpenAIServiceError as exc:
@@ -700,8 +857,9 @@ class DialogueManager:
                 target_dimension,
                 exc,
             )
-            fallback = self._fallback_question_for_dimension(
+            fallback = self._fallback_non_repeated_question_for_dimension(
                 target_dimension,
+                turns,
                 asked_for_dimension,
                 last_user_answer=last_user_answer,
             )
@@ -716,8 +874,9 @@ class DialogueManager:
         probe = self._sanitize_probe(raw_question.follow_up_probe)
 
         if self._is_complex_question(question) or self._is_repeated_question(question, turns):
-            fallback = self._fallback_question_for_dimension(
+            fallback = self._fallback_non_repeated_question_for_dimension(
                 target_dimension,
+                turns,
                 asked_for_dimension,
                 last_user_answer=last_user_answer,
             )

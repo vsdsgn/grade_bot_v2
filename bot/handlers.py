@@ -59,11 +59,18 @@ def _latest_assistant_dimension(turns: list[Turn]) -> str | None:
 
 
 def _build_warmup_question(index: int, profile: dict[str, Any]) -> str:
+    role = str(profile.get("current_role", "")).strip()
+    domain = str(profile.get("domain_and_users", "")).strip()
+
     if index <= 0:
         return "Коротко: какая у вас сейчас роль и зона ответственности?"
     if index == 1:
+        if role:
+            return f"Принял. По роли «{role}» расскажите: в каком продукте вы работаете и кто ваш ключевой пользователь?"
         return "В каком продукте вы работаете и кто ваш ключевой пользователь?"
     if index == 2:
+        if domain:
+            return f"Понял контекст по продукту. Сколько лет вы в продукте и какой трек вам ближе: IC или менеджмент?"
         return "Сколько лет в продукте и какой трек вам ближе: IC или менеджмент?"
 
     return "Добавьте, пожалуйста, немного контекста по текущей роли."
@@ -504,31 +511,25 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
             attempts_for_dimension = int(quality_attempts.get(quality_key, 0))
             quality_attempts[quality_key] = attempts_for_dimension + 1
 
-            correction = dialogue.build_correction_message(
-                dimension=current_dimension,
-                last_user_answer=text,
-                attempt_index=attempts_for_dimension,
-            )
-
-            probe = dialogue.build_follow_up_probe(
-                target_dimension=current_dimension,
-                last_user_answer=text,
-                attempt_index=attempts_for_dimension,
-            )
-
             if tries >= 4:
                 response = (
-                    "Пока ответов по делу мало, поэтому оценка будет неточной. "
-                    "Если готовы продолжить, дайте один реальный кейс по структуре: "
-                    "контекст -> ваш вклад -> результат. Или напишите /reset и начнем заново."
+                    "Пока мало фактов для точной оценки. "
+                    "Чтобы продолжить, дайте один реальный кейс в формате: контекст -> ваш личный вклад -> результат. "
+                    "Если хотите начать с чистого листа, используйте /reset."
                 )
             else:
-                response = correction
-                if probe and tries <= 2:
+                correction_reply = await dialogue.generate_contextual_correction(
+                    target_dimension=current_dimension,
+                    last_user_answer=text,
+                    turns=turns_before_user,
+                    attempt_index=attempts_for_dimension,
+                )
+                response = correction_reply.response
+                if correction_reply.follow_up_probe and tries <= 2:
+                    probe = correction_reply.follow_up_probe
                     response += "\n" + probe
 
             db.append_turn(session.id, role="assistant", content=response, dimension=current_dimension)
-            db.increment_question_count(session.id)
             pending_probes[session.id] = None
             await update.effective_message.reply_text(response)
             return
@@ -541,32 +542,25 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
             attempts_for_dimension = int(quality_attempts.get(quality_key, 0))
             quality_attempts[quality_key] = attempts_for_dimension + 1
 
-            correction = dialogue.build_correction_message(
-                dimension=current_dimension,
-                last_user_answer=text,
-                attempt_index=attempts_for_dimension,
-            )
-
-            probe = dialogue.build_follow_up_probe(
-                target_dimension=current_dimension,
-                last_user_answer=text,
-                attempt_index=attempts_for_dimension,
-            )
-
             if tries >= 4:
                 response = (
-                    "Пока мало фактов для корректной оценки. "
-                    "Нужен один конкретный кейс в 2-4 предложениях: "
-                    "контекст -> ваши действия -> результат. "
-                    "Если не хотите продолжать сейчас, используйте /reset."
+                    "Пока фактов недостаточно, поэтому уверенность оценки падает. "
+                    "Нужен один конкретный кейс в 2-4 предложениях: контекст -> ваши действия -> результат. "
+                    "Если хотите перезапуск, используйте /reset."
                 )
             else:
-                response = correction
-                if probe:
+                correction_reply = await dialogue.generate_contextual_correction(
+                    target_dimension=current_dimension,
+                    last_user_answer=text,
+                    turns=turns_before_user,
+                    attempt_index=attempts_for_dimension,
+                )
+                response = correction_reply.response
+                if correction_reply.follow_up_probe:
+                    probe = correction_reply.follow_up_probe
                     response += "\n" + probe
 
             db.append_turn(session.id, role="assistant", content=response, dimension=current_dimension)
-            db.increment_question_count(session.id)
             pending_probes[session.id] = None
             await update.effective_message.reply_text(response)
             return
