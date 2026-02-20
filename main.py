@@ -85,6 +85,7 @@ def build_application() -> Application:
     app.bot_data["grader"] = grader
     app.bot_data["reporter"] = reporter
     app.bot_data["pending_probes"] = {}
+    app.bot_data["probe_attempts"] = {}
     app.bot_data["max_questions"] = config.max_questions
     app.bot_data["confidence_threshold"] = config.confidence_threshold
 

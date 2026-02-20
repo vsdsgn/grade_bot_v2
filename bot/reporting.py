@@ -14,14 +14,6 @@ class ReportBuilder:
         self.exports_dir = exports_dir
 
     @staticmethod
-    def _track_display(track: str) -> str:
-        if track == "IC":
-            return "IC"
-        if track == "M":
-            return "Management"
-        return str(track)
-
-    @staticmethod
     def _coerce_scores(raw_scores: Any) -> dict[str, float]:
         if not isinstance(raw_scores, dict):
             return {}
@@ -47,11 +39,6 @@ class ReportBuilder:
         return items[:limit]
 
     @staticmethod
-    def _top_strength_dims(dimension_scores: dict[str, float], n: int = 3) -> list[str]:
-        ranked = sorted(dimension_scores.items(), key=lambda item: item[1], reverse=True)
-        return [dim for dim, _ in ranked[:n]]
-
-    @staticmethod
     def _top_gap_dims(dimension_scores: dict[str, float], n: int = 3) -> list[str]:
         ranked = sorted(dimension_scores.items(), key=lambda item: item[1])
         return [dim for dim, _ in ranked[:n]]
@@ -67,14 +54,13 @@ class ReportBuilder:
         if not snippet:
             return None
 
-        if len(snippet) > 140:
-            snippet = snippet[:139].rstrip() + "…"
+        if len(snippet) > 130:
+            snippet = snippet[:129].rstrip() + "…"
 
-        return f"{DIMENSION_DISPLAY.get(dim, dim)}: \"{snippet}\""
+        return f"{DIMENSION_DISPLAY.get(dim, dim)}: {snippet}"
 
     def build_markdown(self, grade: dict[str, Any]) -> str:
         overall_level = str(grade.get("overall_level", "Неизвестно"))
-        track = str(grade.get("track", "Неизвестно"))
 
         try:
             confidence = float(grade.get("confidence", 0.0))
@@ -84,73 +70,52 @@ class ReportBuilder:
 
         dimension_scores = self._coerce_scores(grade.get("dimension_scores", {}))
         evidence = grade.get("evidence", {})
-        strengths = self._coerce_text_list(grade.get("strengths", []), limit=3)
         growth_areas = self._coerce_text_list(grade.get("growth_areas", []), limit=3)
         actions = self._coerce_text_list(grade.get("recommended_actions", []), limit=3)
 
-        strength_dims = self._top_strength_dims(dimension_scores, n=3)
-        gap_dims = self._top_gap_dims(dimension_scores, n=3)
-
-        evidence_lines: list[str] = []
-        for dim in strength_dims:
+        why_lines: list[str] = []
+        for dim, _ in sorted(dimension_scores.items(), key=lambda item: item[1], reverse=True):
             line = self._evidence_line(evidence, dim)
             if line:
-                evidence_lines.append(line)
+                why_lines.append(line)
+            if len(why_lines) >= 3:
+                break
 
-        if not evidence_lines:
-            for dim in gap_dims:
-                line = self._evidence_line(evidence, dim)
-                if line:
-                    evidence_lines.append(line)
-                if len(evidence_lines) >= 3:
-                    break
+        if not why_lines:
+            why_lines = ["Оценка построена по вашим кейсам, масштабу задач и личному вкладу."]
+
+        if not growth_areas:
+            gap_dims = self._top_gap_dims(dimension_scores, n=3)
+            growth_areas = [f"Усилить: {DIMENSION_DISPLAY.get(dim, dim)}." for dim in gap_dims]
+
+        if not actions:
+            actions = [
+                "Соберите 2-3 кейса с метриками до/после и четким описанием личного вклада.",
+                "Для каждой ключевой инициативы фиксируйте влияние на бизнес-результат.",
+                "Сформируйте план развития на 90 дней по 2 главным зонам роста.",
+            ]
 
         lines: list[str] = []
-        lines.append("## Короткий итог ассессмента")
+        lines.append("## Ваш результат")
         lines.append("")
-        lines.append(f"**Уровень:** {overall_level}")
-        lines.append(f"**Трек:** {self._track_display(track)}")
-        lines.append(f"**Уверенность:** {confidence:.2f}")
-        lines.append("")
-
-        lines.append("### Почему такой уровень")
-        if evidence_lines:
-            for item in evidence_lines[:3]:
-                lines.append(f"- {item}")
-        else:
-            lines.append("- Оценка построена по совокупности ваших кейсов и масштаба ответственности.")
+        lines.append(f"**Грейд:** {overall_level}")
+        lines.append(f"**Уверенность оценки:** {confidence:.2f}")
         lines.append("")
 
-        lines.append("### Сильные стороны")
-        if strengths:
-            for item in strengths:
-                lines.append(f"- {item}")
-        else:
-            lines.append("- Хорошая база в ключевых дизайн-компетенциях.")
+        lines.append("### Почему такая оценка")
+        for item in why_lines[:3]:
+            lines.append(f"- {item}")
         lines.append("")
 
         lines.append("### Зоны роста")
-        if growth_areas:
-            for item in growth_areas:
-                lines.append(f"- {item}")
-        else:
-            lines.append("- Наращивать системность и измеримость влияния на бизнес-результат.")
+        for item in growth_areas[:3]:
+            lines.append(f"- {item}")
         lines.append("")
 
-        lines.append("### Фокус на 90 дней")
-        roadmap = actions
-        if not roadmap:
-            roadmap = [
-                "Соберите 2-3 кейса с четкими метриками до/после.",
-                "Зафиксируйте личный вклад и принятые решения в сложных проектах.",
-                "Согласуйте план развития по 2 ключевым зонам роста.",
-            ]
-
-        for idx, item in enumerate(roadmap[:3], start=1):
+        lines.append("### Что делать дальше")
+        for idx, item in enumerate(actions[:3], start=1):
             lines.append(f"{idx}. {item}")
-        lines.append("")
 
-        lines.append("_Подробные баллы и полный JSON сохранены локально._")
         return "\n".join(lines).strip()
 
     def build_report_json(

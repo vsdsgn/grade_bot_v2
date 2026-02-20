@@ -138,6 +138,7 @@ class OpenAIService:
         evidence_summary: str,
         recent_turns: list[dict[str, str]],
         dimension_matrix: dict[str, Any],
+        last_user_answer: str | None = None,
     ) -> NextQuestion:
         schema = {
             "type": "object",
@@ -152,9 +153,10 @@ class OpenAIService:
 
         system_prompt = (
             "Ты опытный интервьюер по продуктовому дизайну. "
-            "Веди разговор как живой диалог на русском языке. "
-            "Сделай вопрос простым и коротким: одна мысль, одно предложение, одна точка фокуса. "
-            "Не задавай сложных, составных и перечислительных вопросов."
+            "Веди разговор на русском, как живой диалог. "
+            "Каждый следующий вопрос опирай на контекст последних ответов кандидата. "
+            "Не повторяй формулировки недавних вопросов и избегай канцелярита. "
+            "Один вопрос, один фокус, без длинных перечислений."
         )
 
         user_prompt = {
@@ -163,9 +165,10 @@ class OpenAIService:
             "profile": profile,
             "evidence_summary": evidence_summary,
             "recent_turns": recent_turns,
+            "last_user_answer": (last_user_answer or "").strip(),
             "dimension_definition": dimension_matrix,
             "constraints": {
-                "question_max_words": 14,
+                "question_max_words": 20,
                 "one_question_only": True,
                 "follow_up_probe_optional": True,
                 "follow_up_probe_empty_string_if_not_needed": True,
@@ -174,6 +177,11 @@ class OpenAIService:
                 "style": "natural_human_dialogue",
                 "no_multi_part_question": True,
                 "no_complex_clauses": True,
+                "must_reference_recent_context": True,
+                "must_consider_last_user_answer": True,
+                "prefer_short_contextual_prefix": True,
+                "avoid_repeating_recent_question_phrasing": True,
+                "avoid_generic_probe_phrase": "Можете привести один конкретный пример",
             },
         }
 
@@ -197,7 +205,7 @@ class OpenAIService:
                     "strict": True,
                 }
             },
-            temperature=0.65,
+            temperature=0.75,
         )
 
         payload = self._extract_payload(response)

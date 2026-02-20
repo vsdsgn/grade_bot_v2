@@ -69,34 +69,21 @@ def _build_warmup_question(index: int, profile: dict[str, Any]) -> str:
     return "Добавьте, пожалуйста, немного контекста по текущей роли."
 
 
-def _short_ack(text: str) -> str:
-    tokens = len(text.split())
-    if tokens <= 5:
-        return "Понял, спасибо."
-    if tokens <= 14:
-        return "Отлично, понял контекст."
-    return "Спасибо, это полезный контекст."
+def _probe_key(session_id: int, dimension: str | None) -> str:
+    return f"{session_id}:{dimension or 'none'}"
 
 
-def _bridge_for_dimension(dimension: str | None) -> str:
-    bridge_map = {
-        "scope_responsibility": "Дальше про масштаб.",
-        "impact": "Хорошо, теперь про результат.",
-        "uncertainty_tolerance": "Понял. Теперь про решения в неопределенности.",
-        "planning_horizon": "Отлично. Следующий фокус - планирование.",
-        "hard_craft": "Перейдем к вашему крафту.",
-        "hard_systems": "Теперь про системность в работе.",
-        "hard_product_business": "Хочу понять продуктовый угол.",
-        "soft_communication_influence": "Супер, теперь про влияние на команду.",
-        "management": "Давайте про управление людьми.",
-    }
-    if not dimension:
-        return "Продолжаем."
-    return bridge_map.get(dimension, "Продолжаем.")
+def _clear_session_runtime_state(
+    session_id: int,
+    pending_probes: dict[int, str | None],
+    probe_attempts: dict[str, int],
+) -> None:
+    pending_probes.pop(session_id, None)
 
-
-def _compose_question_message(question: str, dimension: str | None) -> str:
-    return f"{_bridge_for_dimension(dimension)}\n{question}"
+    prefix = f"{session_id}:"
+    keys_to_delete = [key for key in probe_attempts if key.startswith(prefix)]
+    for key in keys_to_delete:
+        probe_attempts.pop(key, None)
 
 
 def _supplemental_names(matrix: dict[str, Any]) -> list[str]:
@@ -131,9 +118,11 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     active_session = db.get_active_session(update.effective_user.id)
 
     welcome_lines = [
-        "Живое интервью по грейду продуктового дизайнера.",
-        "Формат: один короткий вопрос за раз (обычно 10-15 минут).",
-        "В конце: предполагаемый уровень, сильные стороны, зоны роста и план на 90 дней.",
+        "Это короткий тест-диалог для самооценки грейда продуктового дизайнера.",
+        "Длительность: обычно 10-15 минут.",
+        "Как отвечать: лучше развернуто, на реальных кейсах (контекст, ваш вклад, результат).",
+        "Формат: живое интервью, один вопрос за раз, с учетом ваших предыдущих ответов.",
+        "В результате: предполагаемый грейд, почему именно он, и ключевые зоны роста.",
     ]
 
     if active_session:
@@ -155,8 +144,8 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "/reset - сброс активной сессии\n"
         "/status - текущий прогресс\n"
         "/result - итоговый отчет\n"
-        "/matrices - загруженные матрицы калибровки\n"
-        "/reload_matrix - перечитать матрицы из data/matrices\n"
+        "/matrices - список подключенных матриц\n"
+        "/reload_matrix - перечитать матрицы\n"
         "/help - подсказка"
     )
 
@@ -171,12 +160,12 @@ async def matrices_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
     if names:
         await update.effective_message.reply_text(
-            "Загружены supplemental-матрицы:\n- " + "\n- ".join(names)
+            "Подключены supplemental-матрицы:\n- " + "\n- ".join(names)
         )
         return
 
     await update.effective_message.reply_text(
-        "Сейчас supplemental-матриц нет. Добавьте JSON-файлы в data/matrices и вызовите /reload_matrix."
+        "Сейчас supplemental-матриц нет. Добавьте JSON в data/matrices и вызовите /reload_matrix."
     )
 
 
@@ -209,11 +198,12 @@ async def reset_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
     db: Database = _service(context, "db")
     pending_probes: dict[int, str | None] = _service(context, "pending_probes")
+    probe_attempts: dict[str, int] = _service(context, "probe_attempts")
 
     active = db.get_active_session(update.effective_user.id)
     deleted = db.reset_active_session(update.effective_user.id)
     if active:
-        pending_probes.pop(active.id, None)
+        _clear_session_runtime_state(active.id, pending_probes, probe_attempts)
 
     if deleted:
         await update.effective_message.reply_text("Текущая сессия сброшена. Напишите /start, чтобы начать заново.")
@@ -239,7 +229,7 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
     if session.warmup_index < len(WARMUP_QUESTIONS):
         await update.effective_message.reply_text(
-            f"Идет вводный блок: отвечено {session.warmup_index}/{len(WARMUP_QUESTIONS)}. Ответьте на текущий вопрос."
+            f"Идет вводный блок: отвечено {session.warmup_index}/{len(WARMUP_QUESTIONS)}."
         )
         return
 
@@ -286,7 +276,7 @@ async def result_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             )
         else:
             await update.effective_message.reply_text(
-                "Ассессмент еще в процессе. Нужно еще немного данных, чтобы повысить уверенность оценки."
+                "Ассессмент еще в процессе. Нужно чуть больше данных для уверенной оценки."
             )
         return
 
@@ -296,8 +286,6 @@ async def result_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         return
 
     await _send_report(update, latest.final_report_markdown)
-    if latest.export_path:
-        await update.effective_message.reply_text(f"JSON-экспорт: {latest.export_path}")
 
 
 async def _start_assessment(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -318,7 +306,9 @@ async def _start_assessment(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
     first_q = _build_warmup_question(0, profile={})
     db.append_turn(session.id, role="assistant", content=first_q, dimension=None)
-    await update.effective_message.reply_text(f"Отлично, начинаем.\n{first_q}")
+    await update.effective_message.reply_text(
+        "Начинаем. Отвечайте как в живом интервью: конкретные кейсы и ваш личный вклад.\n" + first_q
+    )
 
 
 async def start_assessment_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -356,7 +346,7 @@ async def _ask_first_assessment_question(
     db.increment_question_count(session.id)
     pending_probes[session.id] = next_question.follow_up_probe
 
-    await update.effective_message.reply_text(_compose_question_message(next_question.question, target_dimension))
+    await update.effective_message.reply_text(next_question.question)
 
 
 async def _finalize_assessment(
@@ -372,8 +362,9 @@ async def _finalize_assessment(
     grader: GradeEngine = _service(context, "grader")
     reporter: ReportBuilder = _service(context, "reporter")
     pending_probes: dict[int, str | None] = _service(context, "pending_probes")
+    probe_attempts: dict[str, int] = _service(context, "probe_attempts")
 
-    await update.effective_message.reply_text("Спасибо. Формирую короткий итог...")
+    await update.effective_message.reply_text("Спасибо. Собираю итог...")
 
     session = db.get_session(session.id) or session
     turns = db.list_turns(session.id)
@@ -396,10 +387,9 @@ async def _finalize_assessment(
         export_path=artifacts.export_path,
         confidence_estimate=float(grade.get("confidence", 0.0)),
     )
-    pending_probes.pop(session.id, None)
+    _clear_session_runtime_state(session.id, pending_probes, probe_attempts)
 
     await _send_report(update, artifacts.markdown)
-    await update.effective_message.reply_text(f"JSON-экспорт сохранен: {artifacts.export_path}")
 
 
 async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -413,6 +403,7 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
     db: Database = _service(context, "db")
     dialogue: DialogueManager = _service(context, "dialogue")
     pending_probes: dict[int, str | None] = _service(context, "pending_probes")
+    probe_attempts: dict[str, int] = _service(context, "probe_attempts")
     confidence_threshold: float = _service(context, "confidence_threshold")
 
     session = db.get_active_session(update.effective_user.id)
@@ -439,15 +430,17 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
                 profile = dialogue.extract_profile(session)
                 next_warmup = _build_warmup_question(session.warmup_index, profile)
                 db.append_turn(session.id, role="assistant", content=next_warmup, dimension=None)
-                await update.effective_message.reply_text(f"{_short_ack(text)}\n{next_warmup}")
+                await update.effective_message.reply_text(next_warmup)
                 return
 
-            await update.effective_message.reply_text(f"{_short_ack(text)}\nПерейдем к основному интервью.")
+            await update.effective_message.reply_text(
+                "Спасибо, контекст понятен. Дальше вопросы будут адаптироваться под ваши ответы."
+            )
             await _ask_first_assessment_question(update, context, session)
             return
 
-        turns = db.list_turns(session.id)
-        current_dimension = _latest_assistant_dimension(turns)
+        turns_before_user = db.list_turns(session.id)
+        current_dimension = _latest_assistant_dimension(turns_before_user)
         db.append_turn(session.id, role="user", content=text, dimension=current_dimension)
 
         turns = db.list_turns(session.id)
@@ -479,16 +472,29 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
             await _finalize_assessment(update, context, session)
             return
 
-        use_probe = dialogue.is_vague_answer(text)
-        if use_probe:
-            probe = pending_probes.get(session.id) or (
-                "Можете привести один конкретный пример: контекст, ваш вклад и результат?"
-            )
-            db.append_turn(session.id, role="assistant", content=probe, dimension=current_dimension)
-            db.increment_question_count(session.id)
-            pending_probes[session.id] = None
-            await update.effective_message.reply_text(f"{_short_ack(text)}\n{probe}")
-            return
+        is_frustrated = dialogue.is_frustrated_answer(text)
+        use_probe = (not is_frustrated) and dialogue.is_vague_answer(text)
+
+        if use_probe and current_dimension:
+            key = _probe_key(session.id, current_dimension)
+            attempts = int(probe_attempts.get(key, 0))
+            if attempts < 1:
+                probe = pending_probes.get(session.id) or dialogue.build_follow_up_probe(
+                    target_dimension=current_dimension,
+                    last_user_answer=text,
+                    attempt_index=attempts,
+                )
+                probe = (probe or "").strip()
+                if probe:
+                    db.append_turn(session.id, role="assistant", content=probe, dimension=current_dimension)
+                    db.increment_question_count(session.id)
+                    pending_probes[session.id] = None
+                    probe_attempts[key] = attempts + 1
+                    await update.effective_message.reply_text(probe)
+                    return
+
+        if current_dimension:
+            probe_attempts.pop(_probe_key(session.id, current_dimension), None)
 
         profile = dialogue.extract_profile(session)
         target_dimension, next_question = await dialogue.generate_assessment_question(
@@ -506,7 +512,10 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
         )
         db.increment_question_count(session.id)
         pending_probes[session.id] = next_question.follow_up_probe
-        await update.effective_message.reply_text(_compose_question_message(next_question.question, target_dimension))
+
+        if is_frustrated:
+            await update.effective_message.reply_text("Понял. Сменим угол и двинемся дальше.")
+        await update.effective_message.reply_text(next_question.question)
 
     except OpenAIServiceError as exc:
         logger.exception("OpenAIServiceError: %s", exc)
