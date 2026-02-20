@@ -141,6 +141,41 @@ FRUSTRATION_PATTERNS = [
     r"enough",
 ]
 
+NON_ASSESSMENT_SHORT_REPLIES = {
+    "да",
+    "нет",
+    "ага",
+    "ок",
+    "окей",
+    "пон",
+    "ясно",
+    "норм",
+    "лол",
+    "кек",
+    "много",
+    "хз",
+    "idk",
+    "yes",
+    "no",
+    "haha",
+    "hah",
+    "xd",
+}
+
+OBSCENE_PATTERNS = [
+    r"\bх[ую]й",
+    r"\bпизд",
+    r"\bеб[а-я]*",
+    r"\bбля",
+    r"\bсук",
+    r"\bдроч",
+    r"\bпис[кю]",
+    r"\bfuck",
+    r"\bshit",
+    r"\bdick",
+    r"\bcock",
+]
+
 
 @dataclass(slots=True)
 class ProgressSnapshot:
@@ -232,6 +267,48 @@ class DialogueManager:
     def is_frustrated_answer(text: str) -> bool:
         normalized = text.lower()
         return any(re.search(pattern, normalized) for pattern in FRUSTRATION_PATTERNS)
+
+    @classmethod
+    def is_non_assessment_answer(cls, text: str) -> bool:
+        normalized = text.lower().strip()
+        if not normalized:
+            return True
+
+        if any(re.search(pattern, normalized) for pattern in OBSCENE_PATTERNS):
+            return True
+
+        if re.fullmatch(r"(ха)+", normalized) or re.fullmatch(r"(ah)+", normalized):
+            return True
+
+        words = [w for w in re.split(r"\s+", normalized) if w]
+        if not words:
+            return True
+
+        if len(words) <= 2 and all(word in NON_ASSESSMENT_SHORT_REPLIES for word in words):
+            return True
+
+        if len(words) == 1 and words[0] in NON_ASSESSMENT_SHORT_REPLIES:
+            return True
+
+        has_letters_or_digits = bool(re.search(r"[a-zа-я0-9]", normalized))
+        if not has_letters_or_digits:
+            return True
+
+        return False
+
+    @classmethod
+    def has_minimum_signal(cls, turns: list[Turn]) -> bool:
+        meaningful = 0
+        for turn in turns:
+            if turn.role != "user" or turn.dimension is None:
+                continue
+            if cls.is_non_assessment_answer(turn.content):
+                continue
+            if len(turn.content.split()) < 5:
+                continue
+            meaningful += 1
+
+        return meaningful >= 4
 
     @staticmethod
     def build_recent_turns_payload(turns: list[Turn], limit: int = 10) -> list[dict[str, str]]:
@@ -409,12 +486,15 @@ class DialogueManager:
             follow_up_probe=cls._fallback_probe_for_dimension(target_dimension, variant_index),
         )
 
-    @staticmethod
-    def _extract_topic_phrase(text: str, max_words: int = 6) -> str:
+    @classmethod
+    def _extract_topic_phrase(cls, text: str, max_words: int = 6) -> str:
+        if cls.is_non_assessment_answer(text):
+            return ""
+
         cleaned = re.sub(r"\s+", " ", text).strip()
         cleaned = re.sub(r"[^\w\s-]", "", cleaned)
-        words = [w for w in cleaned.split() if w]
-        if not words:
+        words = [w for w in cleaned.split() if len(w) > 1]
+        if len(words) < 2:
             return ""
         return " ".join(words[:max_words])
 
@@ -496,11 +576,18 @@ class DialogueManager:
 
         return normalized in recent_assistant_questions
 
-    @staticmethod
-    def _last_user_answer(turns: list[Turn]) -> str:
+    @classmethod
+    def _last_user_assessment_answer(cls, turns: list[Turn]) -> str:
         for turn in reversed(turns):
-            if turn.role == "user" and turn.content.strip():
-                return turn.content.strip()
+            if turn.role != "user":
+                continue
+            if turn.dimension is None:
+                continue
+            if cls.is_non_assessment_answer(turn.content):
+                continue
+            content = turn.content.strip()
+            if content:
+                return content
         return ""
 
     async def generate_assessment_question(
@@ -520,7 +607,7 @@ class DialogueManager:
             if turn.role == "assistant" and turn.dimension == target_dimension
         )
 
-        last_user_answer = self._last_user_answer(turns)
+        last_user_answer = self._last_user_assessment_answer(turns)
 
         try:
             raw_question = await self.openai_service.generate_next_question(

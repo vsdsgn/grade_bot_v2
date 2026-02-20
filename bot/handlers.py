@@ -73,10 +73,15 @@ def _probe_key(session_id: int, dimension: str | None) -> str:
     return f"{session_id}:{dimension or 'none'}"
 
 
+def _invalid_key(session_id: int) -> str:
+    return f"invalid:{session_id}"
+
+
 def _clear_session_runtime_state(
     session_id: int,
     pending_probes: dict[int, str | None],
     probe_attempts: dict[str, int],
+    invalid_attempts: dict[str, int],
 ) -> None:
     pending_probes.pop(session_id, None)
 
@@ -84,6 +89,8 @@ def _clear_session_runtime_state(
     keys_to_delete = [key for key in probe_attempts if key.startswith(prefix)]
     for key in keys_to_delete:
         probe_attempts.pop(key, None)
+
+    invalid_attempts.pop(_invalid_key(session_id), None)
 
 
 def _supplemental_names(matrix: dict[str, Any]) -> list[str]:
@@ -199,11 +206,12 @@ async def reset_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     db: Database = _service(context, "db")
     pending_probes: dict[int, str | None] = _service(context, "pending_probes")
     probe_attempts: dict[str, int] = _service(context, "probe_attempts")
+    invalid_attempts: dict[str, int] = _service(context, "invalid_attempts")
 
     active = db.get_active_session(update.effective_user.id)
     deleted = db.reset_active_session(update.effective_user.id)
     if active:
-        _clear_session_runtime_state(active.id, pending_probes, probe_attempts)
+        _clear_session_runtime_state(active.id, pending_probes, probe_attempts, invalid_attempts)
 
     if deleted:
         await update.effective_message.reply_text("Текущая сессия сброшена. Напишите /start, чтобы начать заново.")
@@ -363,6 +371,7 @@ async def _finalize_assessment(
     reporter: ReportBuilder = _service(context, "reporter")
     pending_probes: dict[int, str | None] = _service(context, "pending_probes")
     probe_attempts: dict[str, int] = _service(context, "probe_attempts")
+    invalid_attempts: dict[str, int] = _service(context, "invalid_attempts")
 
     await update.effective_message.reply_text("Спасибо. Собираю итог...")
 
@@ -387,7 +396,7 @@ async def _finalize_assessment(
         export_path=artifacts.export_path,
         confidence_estimate=float(grade.get("confidence", 0.0)),
     )
-    _clear_session_runtime_state(session.id, pending_probes, probe_attempts)
+    _clear_session_runtime_state(session.id, pending_probes, probe_attempts, invalid_attempts)
 
     await _send_report(update, artifacts.markdown)
 
@@ -404,6 +413,7 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
     dialogue: DialogueManager = _service(context, "dialogue")
     pending_probes: dict[int, str | None] = _service(context, "pending_probes")
     probe_attempts: dict[str, int] = _service(context, "probe_attempts")
+    invalid_attempts: dict[str, int] = _service(context, "invalid_attempts")
     confidence_threshold: float = _service(context, "confidence_threshold")
 
     session = db.get_active_session(update.effective_user.id)
@@ -411,8 +421,32 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
         await update.effective_message.reply_text("Активной сессии нет. Напишите /start и нажмите «Начать ассессмент».")
         return
 
+    invalid_key = _invalid_key(session.id)
+
     try:
         if session.warmup_index < len(WARMUP_QUESTIONS):
+            if dialogue.is_non_assessment_answer(text):
+                db.append_turn(session.id, role="user", content=text, dimension=None)
+                tries = int(invalid_attempts.get(invalid_key, 0)) + 1
+                invalid_attempts[invalid_key] = tries
+
+                warmup_hints = [
+                    "Нужен короткий фактический ответ: текущая роль и зона ответственности.",
+                    "Нужен контекст: в каком продукте вы работаете и кто ваш пользователь.",
+                    "Нужен факт: ваш опыт в продукте и предпочитаемый трек (IC или менеджмент).",
+                ]
+                hint = warmup_hints[min(session.warmup_index, len(warmup_hints) - 1)]
+
+                if tries >= 3:
+                    await update.effective_message.reply_text(
+                        "Пока недостаточно осмысленных ответов для старта интервью. Когда будете готовы, напишите /reset и начнем заново."
+                    )
+                else:
+                    await update.effective_message.reply_text("Похоже, ответ не по теме. " + hint)
+                return
+
+            invalid_attempts.pop(invalid_key, None)
+
             warmup_idx = session.warmup_index
             db.append_turn(session.id, role="user", content=text, dimension=None)
             db.update_profile_field(session.id, PROFILE_FIELDS[warmup_idx], text)
@@ -441,6 +475,24 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
 
         turns_before_user = db.list_turns(session.id)
         current_dimension = _latest_assistant_dimension(turns_before_user)
+
+        if dialogue.is_non_assessment_answer(text):
+            db.append_turn(session.id, role="user", content=text, dimension=None)
+            tries = int(invalid_attempts.get(invalid_key, 0)) + 1
+            invalid_attempts[invalid_key] = tries
+
+            if tries >= 3:
+                await update.effective_message.reply_text(
+                    "Похоже, сейчас ответы не по теме интервью. Напишите /reset, когда будете готовы пройти ассессмент серьезно."
+                )
+            else:
+                await update.effective_message.reply_text(
+                    "Похоже, это не ответ по кейсу. Дайте 1 короткий реальный пример: контекст, ваш вклад, результат."
+                )
+            return
+
+        invalid_attempts.pop(invalid_key, None)
+
         db.append_turn(session.id, role="user", content=text, dimension=current_dimension)
 
         turns = db.list_turns(session.id)
@@ -469,8 +521,19 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
             confidence_estimate=confidence,
             confidence_threshold=confidence_threshold,
         ):
-            await _finalize_assessment(update, context, session)
-            return
+            if dialogue.has_minimum_signal(turns):
+                await _finalize_assessment(update, context, session)
+                return
+
+            if session.question_count >= session.max_questions:
+                await update.effective_message.reply_text(
+                    "Недостаточно содержательных ответов для корректной оценки. Напишите /reset и начнем заново."
+                )
+                return
+
+            await update.effective_message.reply_text(
+                "Пока мало данных для оценки. Нужен более конкретный кейс: контекст, ваш вклад, результат."
+            )
 
         is_frustrated = dialogue.is_frustrated_answer(text)
         use_probe = (not is_frustrated) and dialogue.is_vague_answer(text)
@@ -527,3 +590,4 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
         await update.effective_message.reply_text(
             "Произошла ошибка при обработке ответа. Попробуйте еще раз."
         )
+
