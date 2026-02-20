@@ -297,6 +297,29 @@ class DialogueManager:
         return False
 
     @classmethod
+    def is_low_signal_answer(cls, text: str) -> bool:
+        if cls.is_non_assessment_answer(text):
+            return True
+
+        normalized = text.lower().strip()
+        words = [w for w in re.split(r"\s+", normalized) if w]
+        if not words:
+            return True
+
+        has_numbers = bool(re.search(r"\d", normalized))
+        if len(words) < 5:
+            return True
+        if len(words) < 8 and not has_numbers:
+            return True
+
+        if cls.is_vague_answer(text):
+            if has_numbers and len(words) >= 5:
+                return False
+            return True
+
+        return False
+
+    @classmethod
     def has_minimum_signal(cls, turns: list[Turn]) -> bool:
         meaningful = 0
         for turn in turns:
@@ -309,6 +332,59 @@ class DialogueManager:
             meaningful += 1
 
         return meaningful >= 4
+
+    @staticmethod
+    def answer_format_hint_for_dimension(dimension: str | None) -> str:
+        hints = {
+            "scope_responsibility": "Нужен пример в формате: масштаб задачи, ваша зона ответственности, результат.",
+            "impact": "Нужен пример в формате: что сделали и какой эффект в метриках или поведении пользователей.",
+            "uncertainty_tolerance": "Нужен пример: в чем была неопределенность, какое решение приняли, какой вышел итог.",
+            "planning_horizon": "Нужен пример: как планировали, какие этапы/риски выделяли, что получили в итоге.",
+            "hard_craft": "Нужен пример: какая дизайн-задача, что сделали руками, как это улучшило качество.",
+            "hard_systems": "Нужен пример: какое системное улучшение вы внедрили и как оно масштабировалось.",
+            "hard_product_business": "Нужен пример: где балансировали UX и бизнес-цель, и что получилось.",
+            "soft_communication_influence": "Нужен пример: кого убеждали, какой аргумент сработал, к какому решению пришли.",
+            "management": "Нужен пример: кого и как развивали, какие изменения это дало команде.",
+        }
+        return hints.get(
+            dimension or "",
+            "Нужен реальный кейс: контекст, ваш личный вклад и конкретный результат.",
+        )
+
+    @classmethod
+    def build_correction_message(
+        cls,
+        dimension: str | None,
+        last_user_answer: str,
+        attempt_index: int = 0,
+    ) -> str:
+        topic = cls._extract_topic_phrase(last_user_answer)
+        prefix = f"Понял, вы говорите про «{topic}». " if topic else ""
+
+        if attempt_index <= 0:
+            return (
+                prefix
+                + cls.answer_format_hint_for_dimension(dimension)
+                + " Один конкретный кейс, без общих фраз."
+            )
+
+        if attempt_index == 1:
+            return (
+                prefix
+                + "Давайте проще: где это происходило, что сделали лично вы и какой был результат."
+            )
+
+        return (
+            prefix
+            + "Без конкретики оценка будет неточной. Нужен один кейс в 2-4 предложениях: контекст -> ваш вклад -> результат."
+        )
+
+    @classmethod
+    def build_reflective_bridge(cls, last_user_answer: str) -> str | None:
+        topic = cls._extract_topic_phrase(last_user_answer)
+        if not topic:
+            return None
+        return f"Понял, кейс про «{topic}»."
 
     @staticmethod
     def build_recent_turns_payload(turns: list[Turn], limit: int = 10) -> list[dict[str, str]]:
